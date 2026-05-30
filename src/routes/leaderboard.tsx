@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Shell } from "@/components/Shell";
-import { fetchProfile, primaryLanguage } from "@/lib/github";
+import { fetchProfile, getFallbackProfile, primaryLanguage } from "@/lib/github";
 import { aggregate, score } from "@/lib/gitworth";
 import type { GhUser, Repo } from "@/components/GitWorthView";
-import { Skeleton } from "@/components/ui-bits";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -48,8 +47,19 @@ const FILTERS = ["Global","Python","JavaScript","TypeScript","Flutter","AI/ML","
 
 type Row = { login: string; topics: string[]; user: GhUser | null; sc: number; lang: string | null };
 
+function makeRow(f: { login: string; topics: string[] }): Row {
+  const fallback = getFallbackProfile(f.login);
+  if (!fallback) return { ...f, user: null, sc: 0, lang: null };
+  return {
+    ...f,
+    user: fallback.user,
+    sc: score(fallback.user, aggregate(fallback.user, fallback.repos)).value,
+    lang: primaryLanguage(fallback.repos),
+  };
+}
+
 function Leaderboard() {
-  const [rows, setRows] = useState<Row[]>(FEATURED.map(f => ({ ...f, user: null, sc: 0, lang: null })));
+  const [rows, setRows] = useState<Row[]>(FEATURED.map(makeRow));
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("Global");
   const [q, setQ] = useState("");
   const [sortKey, setSortKey] = useState<"score" | "followers" | "repos">("score");
@@ -64,7 +74,7 @@ function Leaderboard() {
           const sc = score(p.user, aggregate(p.user, p.repos)).value;
           setRows(prev => prev.map(r => r.login === f.login ? { ...r, user: p.user, sc, lang: primaryLanguage(p.repos) } : r));
         })
-        .catch(() => { /* skip rate-limited or missing */ });
+        .catch(() => { /* keep the curated snapshot */ });
     });
     return () => { cancel = true; };
   }, []);
@@ -135,13 +145,13 @@ function Leaderboard() {
                     {r.user ? (
                       <img src={r.user.avatar_url} alt={r.login} className="w-7 h-7 rounded-full border border-border" />
                     ) : (
-                      <Skeleton className="w-7 h-7 rounded-full" />
+                      <span className="w-7 h-7 rounded-full border border-border bg-secondary" />
                     )}
                     <span className="font-mono group-hover:underline underline-offset-4">@{r.login}</span>
                   </Link>
                 </td>
                 <td className="py-3 text-right font-mono tabular-nums">
-                  {r.user ? r.sc.toLocaleString() : <Skeleton className="h-4 w-16 ml-auto" />}
+                  {r.user ? r.sc.toLocaleString() : "—"}
                 </td>
                 <td className="py-3 text-right font-mono tabular-nums hidden sm:table-cell">
                   {r.user ? r.user.followers.toLocaleString() : "—"}

@@ -4,6 +4,7 @@ import {
   AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import jsPDF from "jspdf";
+import { fetchProfile } from "@/lib/github";
 
 export type GhUser = {
   login: string; name: string | null; avatar_url: string; html_url: string;
@@ -100,11 +101,7 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     if (!u) return;
     setLoading(true); setError(null); setUser(null); setRepos([]);
     try {
-      const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(u)}`);
-      if (!userRes.ok) throw new Error(userRes.status === 404 ? "User not found" : "GitHub API error");
-      const userData: GhUser = await userRes.json();
-      const reposRes = await fetch(`https://api.github.com/users/${encodeURIComponent(u)}/repos?per_page=100&sort=updated`);
-      const reposData: Repo[] = reposRes.ok ? await reposRes.json() : [];
+      const { user: userData, repos: reposData } = await fetchProfile(u);
       const langCount = new Map<string, number>();
       reposData.forEach(r => { if (r.language) langCount.set(r.language, (langCount.get(r.language) ?? 0) + 1); });
       setTopLangs([...langCount.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5));

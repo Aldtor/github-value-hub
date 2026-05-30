@@ -28,7 +28,7 @@ function ComparePage() {
           Head-to-head on followers, stars, repos, score and more.
         </p>
         <form
-          onSubmit={(e) => { e.preventDefault(); const u1 = a.trim(), u2 = b.trim(); if (u1 && u2) nav({ to: "/compare_/$user1/$user2", params: { user1: u1, user2: u2 } }); }}
+          onSubmit={(e) => { e.preventDefault(); const u1 = a.trim(), u2 = b.trim(); if (u1 && u2) nav({ to: "/compare/$user1/$user2", params: { user1: u1, user2: u2 } }); }}
           className="mt-10 grid sm:grid-cols-[1fr_auto_1fr_auto] gap-3 items-center max-w-3xl"
         >
           <Input v={a} set={setA} placeholder="torvalds" />
@@ -41,7 +41,7 @@ function ComparePage() {
           {[["torvalds","gaearon"],["sindresorhus","tj"],["yyx990803","gaearon"]].map(([x,y],i)=>(
             <span key={x+y}>
               {i>0 && <span className="text-muted-foreground/40 mx-1.5">·</span>}
-              <button onClick={()=>nav({to:"/compare_/$user1/$user2",params:{user1:x,user2:y}})} className="font-mono hover:text-foreground hover:underline underline-offset-4">@{x} vs @{y}</button>
+              <button onClick={()=>nav({to:"/compare/$user1/$user2",params:{user1:x,user2:y}})} className="font-mono hover:text-foreground hover:underline underline-offset-4">@{x} vs @{y}</button>
             </span>
           ))}
         </p>
