@@ -34,9 +34,11 @@ type Weights = {
   originalRepos: number; gists: number; ageYears: number;
 };
 
+// Tuned so engagement (followers/stars/forks) drives value.
+// A brand-new empty account lands near $0; a popular dev scales naturally.
 const DEFAULT_WEIGHTS: Weights = {
-  followers: 12, following: 0.5, stars: 7, forks: 4,
-  originalRepos: 15, gists: 3, ageYears: 50,
+  followers: 8, following: 0.1, stars: 4, forks: 2,
+  originalRepos: 2, gists: 0.5, ageYears: 5,
 };
 
 const WEIGHT_META: { key: keyof Weights; label: string; max: number; step: number }[] = [
@@ -261,6 +263,9 @@ function Index() {
                 </p>
                 <p className="mt-3 text-xs text-muted-foreground font-mono">
                   followers×{weights.followers} + stars×{weights.stars} + forks×{weights.forks} + repos×{weights.originalRepos} + age×{weights.ageYears} + …
+                </p>
+                <p className="mt-2 text-[11px] text-accent/90 max-w-md mx-auto">
+                  ⚠ Just for fun — not a real market price. It's a made-up score from public GitHub stats, not what your account would actually sell for.
                 </p>
                 <div className="mt-5 flex justify-center gap-2">
                   <button onClick={exportPDF}
