@@ -181,38 +181,31 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
   return (
     <>
       {showSearch && (
-        <section className="text-center pt-16 pb-12">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card/60 backdrop-blur text-xs font-mono text-muted-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            live GitHub appraisal · just for fun
-          </span>
-          <h1 className="mt-6 font-serif text-6xl md:text-8xl tracking-tight leading-[0.95]">
-            What's your <em className="not-italic bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>GitHub</em>
-            <br />actually <span className="italic">worth?</span>
+        <section className="pt-20 pb-12">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight">
+            What's your GitHub worth?
           </h1>
-          <p className="mt-6 text-muted-foreground max-w-xl mx-auto text-lg leading-relaxed">
-            Drop any username. Get growth charts, a transparent formula you can tweak,
-            a shareable link, and a PDF report — in seconds.
+          <p className="mt-3 text-muted-foreground max-w-xl text-base">
+            Type a username. Get a profile summary, growth charts, an editable formula, a share link, and a PDF.
           </p>
-          <form onSubmit={onSubmit} className="mt-10 max-w-xl mx-auto flex gap-2">
-            <div className="flex-1 flex items-center bg-card rounded-xl border border-border focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/15 transition shadow-sm">
-              <span className="pl-4 text-muted-foreground font-mono text-lg">@</span>
+          <form onSubmit={onSubmit} className="mt-8 max-w-xl flex gap-2">
+            <div className="flex-1 flex items-center bg-card rounded-md border border-border focus-within:border-foreground transition">
+              <span className="pl-3 text-muted-foreground font-mono text-sm">@</span>
               <input value={username} onChange={e => setUsername(e.target.value)} placeholder="torvalds"
-                className="flex-1 bg-transparent px-2 py-4 outline-none font-mono text-base placeholder:text-muted-foreground/50" autoFocus />
+                className="flex-1 bg-transparent px-2 py-3 outline-none font-mono text-sm placeholder:text-muted-foreground/60" autoFocus />
             </div>
             <button type="submit" disabled={loading}
-              className="px-7 py-4 rounded-xl font-semibold text-primary-foreground transition hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-              style={{ backgroundImage: "var(--gradient-hero)", boxShadow: "var(--shadow-glow)" }}>
-              {loading ? "…" : "Appraise →"}
+              className="px-5 py-3 rounded-md font-medium text-sm bg-foreground text-background hover:opacity-90 transition disabled:opacity-50">
+              {loading ? "…" : "Appraise"}
             </button>
           </form>
-          {error && <p className="mt-6 text-destructive font-mono text-sm">! {error}</p>}
+          {error && <p className="mt-4 text-destructive font-mono text-sm">! {error}</p>}
           {!user && !loading && (
-            <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs">
-              <span className="text-muted-foreground font-mono">try:</span>
+            <div className="mt-5 flex flex-wrap gap-2 text-xs">
+              <span className="text-muted-foreground font-mono py-1">try</span>
               {["torvalds","gaearon","sindresorhus","tj"].map(name => (
                 <button key={name} type="button" onClick={() => { setUsername(name); navigate({ to: "/u/$username", params: { username: name } }); }}
-                  className="px-2.5 py-1 rounded-full border border-border bg-card hover:border-primary hover:text-primary transition font-mono">
+                  className="px-2.5 py-1 rounded-md border border-border bg-card hover:border-foreground transition font-mono">
                   @{name}
                 </button>
               ))}
@@ -223,28 +216,25 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
 
       {!showSearch && loading && (
         <div className="text-center mt-16 flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-          <p className="text-muted-foreground font-mono text-sm">appraising @{initialUsername}…</p>
+          <div className="w-6 h-6 rounded-full border-2 border-muted border-t-foreground animate-spin" />
+          <p className="text-muted-foreground font-mono text-sm">loading @{initialUsername}…</p>
         </div>
       )}
       {!showSearch && error && (
         <div className="text-center mt-16">
           <p className="text-destructive font-mono">! {error}</p>
-          <Link to="/" className="inline-block mt-4 text-primary hover:underline text-sm">← back to home</Link>
+          <Link to="/" className="inline-block mt-4 hover:underline text-sm">← back</Link>
         </div>
       )}
 
       {user && agg && val && (
-        <section className="grid md:grid-cols-3 gap-5 mt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="md:col-span-1 p-7 rounded-2xl border border-border" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}>
-            <div className="relative inline-block">
-              <div className="absolute -inset-1 rounded-full opacity-40 blur-md" style={{ backgroundImage: "var(--gradient-hero)" }} />
-              <img src={user.avatar_url} alt={user.login} className="relative w-28 h-28 rounded-full border-2 border-card" />
-            </div>
-            <h2 className="mt-5 text-3xl font-serif leading-tight">{user.name ?? user.login}</h2>
-            <a href={user.html_url} target="_blank" rel="noreferrer" className="text-primary font-mono text-sm hover:underline">@{user.login}</a>
-            {user.bio && <p className="mt-4 text-sm text-muted-foreground leading-relaxed">{user.bio}</p>}
-            <ul className="mt-6 space-y-2.5 text-sm border-t border-border pt-5">
+        <section className="grid md:grid-cols-3 gap-4 mt-6">
+          <div className="md:col-span-1 p-6 rounded-lg border border-border bg-card">
+            <img src={user.avatar_url} alt={user.login} className="w-20 h-20 rounded-full border border-border" />
+            <h2 className="mt-4 text-xl font-semibold leading-tight">{user.name ?? user.login}</h2>
+            <a href={user.html_url} target="_blank" rel="noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground hover:underline">@{user.login}</a>
+            {user.bio && <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{user.bio}</p>}
+            <ul className="mt-5 space-y-2 text-sm border-t border-border pt-4">
               {user.company && <Info label="Company" value={user.company} />}
               {user.location && <Info label="Location" value={user.location} />}
               {user.blog && <Info label="Blog" value={user.blog} link />}
@@ -254,36 +244,31 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
             </ul>
           </div>
 
-          <div className="md:col-span-2 flex flex-col gap-5">
-            <div className="p-10 rounded-2xl border border-primary/20 text-center relative overflow-hidden"
-              style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-lift)" }}>
-              <div className="absolute inset-0 -z-0 opacity-50" style={{ backgroundImage: "var(--gradient-paper)" }} />
-              <div className="relative">
-                <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-mono">Estimated value</p>
-                <p key={val.value} className="mt-4 font-serif text-7xl md:text-8xl bg-clip-text text-transparent leading-none animate-in zoom-in-95 fade-in duration-500" style={{ backgroundImage: "var(--gradient-hero)" }}>
-                  ${val.value.toLocaleString()}
-                </p>
-                <p className="mt-4 text-[11px] text-muted-foreground font-mono">
-                  followers×{weights.followers} + stars×{weights.stars} + forks×{weights.forks} + repos×{weights.originalRepos} + age×{weights.ageYears} + …
-                </p>
-                <p className="mt-3 text-xs text-accent max-w-md mx-auto italic">
-                  Just for fun — not a real market price. A made-up score from public GitHub stats.
-                </p>
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  <button onClick={shareLink}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold bg-card border border-border hover:border-primary hover:text-primary transition">
-                    {copied ? "✓ Link copied!" : "🔗 Copy share link"}
-                  </button>
-                  <button onClick={exportPDF}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition"
-                    style={{ backgroundImage: "var(--gradient-hero)" }}>
-                    ↓ Export PDF
-                  </button>
-                  <button onClick={() => setWeights(DEFAULT_WEIGHTS)}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold bg-secondary border border-border hover:bg-muted transition">
-                    ↺ Reset weights
-                  </button>
-                </div>
+          <div className="md:col-span-2 flex flex-col gap-4">
+            <div className="p-8 rounded-lg border border-border bg-card">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-mono">Estimated value</p>
+              <p key={val.value} className="mt-3 text-5xl md:text-6xl font-semibold tracking-tight leading-none">
+                ${val.value.toLocaleString()}
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground font-mono">
+                followers×{weights.followers} + stars×{weights.stars} + forks×{weights.forks} + repos×{weights.originalRepos} + age×{weights.ageYears} + …
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Just a made-up score from public GitHub stats — not a real market price.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <button onClick={shareLink}
+                  className="px-3.5 py-2 rounded-md text-sm bg-card border border-border hover:border-foreground transition">
+                  {copied ? "✓ Copied" : "Copy share link"}
+                </button>
+                <button onClick={exportPDF}
+                  className="px-3.5 py-2 rounded-md text-sm bg-foreground text-background hover:opacity-90 transition">
+                  Export PDF
+                </button>
+                <button onClick={() => setWeights(DEFAULT_WEIGHTS)}
+                  className="px-3.5 py-2 rounded-md text-sm bg-card border border-border hover:border-foreground transition">
+                  Reset weights
+                </button>
               </div>
             </div>
 
@@ -299,33 +284,33 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
             </div>
           </div>
 
-          <div className="md:col-span-3 grid md:grid-cols-2 gap-5">
+          <div className="md:col-span-3 grid md:grid-cols-2 gap-4">
             <ChartCard title="Cumulative stars">
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={growth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="starGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.42 0.11 155)" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="oklch(0.42 0.11 155)" stopOpacity={0} />
+                      <stop offset="0%" stopColor="oklch(0.22 0 0)" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="oklch(0.22 0 0)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.015 80)" />
-                  <XAxis dataKey="year" stroke="oklch(0.46 0.02 60)" fontSize={11} />
-                  <YAxis stroke="oklch(0.46 0.02 60)" fontSize={11} />
-                  <Tooltip contentStyle={{ background: "oklch(0.995 0.006 85)", border: "1px solid oklch(0.88 0.015 80)", borderRadius: 10, fontSize: 12 }} />
-                  <Area type="monotone" dataKey="stars" stroke="oklch(0.42 0.11 155)" fill="url(#starGrad)" strokeWidth={2.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0 0)" />
+                  <XAxis dataKey="year" stroke="oklch(0.50 0 0)" fontSize={11} />
+                  <YAxis stroke="oklch(0.50 0 0)" fontSize={11} />
+                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.92 0 0)", borderRadius: 6, fontSize: 12 }} />
+                  <Area type="monotone" dataKey="stars" stroke="oklch(0.22 0 0)" fill="url(#starGrad)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </ChartCard>
             <ChartCard title="Followers growth (estimated)">
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={growth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.015 80)" />
-                  <XAxis dataKey="year" stroke="oklch(0.46 0.02 60)" fontSize={11} />
-                  <YAxis stroke="oklch(0.46 0.02 60)" fontSize={11} />
-                  <Tooltip contentStyle={{ background: "oklch(0.995 0.006 85)", border: "1px solid oklch(0.88 0.015 80)", borderRadius: 10, fontSize: 12 }} />
-                  <Line type="monotone" dataKey="followersEst" stroke="oklch(0.62 0.16 45)" strokeWidth={2.5} dot={false} />
-                  <Line type="monotone" dataKey="repos" stroke="oklch(0.42 0.11 155)" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0 0)" />
+                  <XAxis dataKey="year" stroke="oklch(0.50 0 0)" fontSize={11} />
+                  <YAxis stroke="oklch(0.50 0 0)" fontSize={11} />
+                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.92 0 0)", borderRadius: 6, fontSize: 12 }} />
+                  <Line type="monotone" dataKey="followersEst" stroke="oklch(0.22 0 0)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="repos" stroke="oklch(0.50 0 0)" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
               <p className="text-[10px] text-muted-foreground mt-2 font-mono leading-relaxed">
@@ -334,41 +319,41 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
             </ChartCard>
           </div>
 
-          <div className="md:col-span-3 p-7 rounded-2xl border border-border" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}>
+          <div className="md:col-span-3 p-6 rounded-lg border border-border bg-card">
             <div className="flex items-baseline justify-between mb-5">
-              <h3 className="text-2xl font-serif">Tweak the formula</h3>
-              <span className="text-[11px] text-muted-foreground font-mono uppercase tracking-widest">live ↑</span>
+              <h3 className="text-lg font-semibold">Tweak the formula</h3>
+              <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">live</span>
             </div>
-            <div className="grid md:grid-cols-2 gap-x-10 gap-y-5">
+            <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
               {WEIGHT_META.map(({ key, label, max, step }) => {
                 const w = weights[key]; const contribution = Math.round(val.parts[key]);
                 return (
                   <div key={key}>
                     <div className="flex justify-between text-sm mb-1.5">
-                      <span className="font-medium">{label}</span>
+                      <span>{label}</span>
                       <span className="font-mono text-muted-foreground">
-                        ×<span className="text-foreground">{w}</span> = <span className="text-primary font-semibold">${contribution.toLocaleString()}</span>
+                        ×<span className="text-foreground">{w}</span> = <span className="text-foreground font-medium">${contribution.toLocaleString()}</span>
                       </span>
                     </div>
                     <input type="range" min={0} max={max} step={step} value={w}
                       onChange={e => setWeights(prev => ({ ...prev, [key]: Number(e.target.value) }))}
-                      className="w-full accent-[oklch(0.42_0.11_155)]" />
+                      className="w-full accent-foreground" />
                   </div>
                 );
               })}
             </div>
-            <div className="mt-6 pt-5 border-t border-border font-mono text-xs text-muted-foreground leading-relaxed">
-              <span className="text-foreground font-semibold">value</span> = followers×{weights.followers} + following×{weights.following} + stars×{weights.stars} + forks×{weights.forks}
+            <div className="mt-5 pt-4 border-t border-border font-mono text-xs text-muted-foreground leading-relaxed break-words">
+              <span className="text-foreground">value</span> = followers×{weights.followers} + following×{weights.following} + stars×{weights.stars} + forks×{weights.forks}
               {" + "}original_repos×{weights.originalRepos} + gists×{weights.gists} + age_years×{weights.ageYears}
             </div>
           </div>
 
           {topLangs.length > 0 && (
-            <div className="md:col-span-3 p-7 rounded-2xl border border-border" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}>
-              <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-mono mb-4">Top languages</p>
+            <div className="md:col-span-3 p-6 rounded-lg border border-border bg-card">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-mono mb-3">Top languages</p>
               <div className="flex flex-wrap gap-2">
                 {topLangs.map(([lang, n]) => (
-                  <span key={lang} className="px-3 py-1.5 rounded-full text-sm bg-card border border-border font-mono hover:border-primary transition">
+                  <span key={lang} className="px-2.5 py-1 rounded-md text-sm bg-background border border-border font-mono">
                     {lang} <span className="text-muted-foreground">×{n}</span>
                   </span>
                 ))}
@@ -383,8 +368,8 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="p-5 rounded-2xl border border-border" style={{ background: "var(--gradient-card)" }}>
-      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">{title}</p>
+    <div className="p-5 rounded-lg border border-border bg-card">
+      <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-mono mb-3">{title}</p>
       {children}
     </div>
   );
@@ -395,7 +380,7 @@ function Info({ label, value, link }: { label: string; value: string; link?: boo
     <li className="flex justify-between gap-3">
       <span className="text-muted-foreground">{label}</span>
       {link ? (
-        <a href={value.startsWith("http") ? value : `https://${value}`} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate max-w-[60%]">{value}</a>
+        <a href={value.startsWith("http") ? value : `https://${value}`} target="_blank" rel="noreferrer" className="hover:underline truncate max-w-[60%]">{value}</a>
       ) : (
         <span className="truncate max-w-[60%] text-right">{value}</span>
       )}
@@ -405,9 +390,9 @@ function Info({ label, value, link }: { label: string; value: string; link?: boo
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="p-4 rounded-xl border border-border hover:border-primary/40 transition" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}>
-      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">{label}</p>
-      <p className="text-2xl font-serif mt-1.5">{typeof value === "number" ? value.toLocaleString() : value}</p>
+    <div className="p-4 rounded-lg border border-border bg-card">
+      <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-mono">{label}</p>
+      <p className="text-xl font-semibold mt-1">{typeof value === "number" ? value.toLocaleString() : value}</p>
     </div>
   );
 }
