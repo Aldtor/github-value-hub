@@ -26,7 +26,8 @@ export function score(u: GhUser, a: Agg, w: Weights = DEFAULT_WEIGHTS) {
 }
 
 // Calibrated rank curve. Score thresholds → percentile.
-const TIERS = [
+type Tier = { min: number; pct: string; tier: string; base: number };
+const TIERS: Tier[] = [
   { min: 0,      pct: "Top 90%", tier: "Beginner",  base: 9_500_000 },
   { min: 250,    pct: "Top 60%", tier: "Growing",   base: 6_000_000 },
   { min: 1_000,  pct: "Top 30%", tier: "Advanced",  base: 3_000_000 },
@@ -34,7 +35,7 @@ const TIERS = [
   { min: 25_000, pct: "Top 5%",  tier: "Elite",     base: 500_000 },
   { min: 100_000,pct: "Top 1%",  tier: "Legend",    base: 100_000 },
   { min: 500_000,pct: "Top 0.1%",tier: "Legend",    base: 10_000 },
-] as const;
+];
 
 export type Rank = { percentile: string; tier: string; globalRank: number };
 
