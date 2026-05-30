@@ -34,9 +34,11 @@ type Weights = {
   originalRepos: number; gists: number; ageYears: number;
 };
 
+// Tuned so engagement (followers/stars/forks) drives value.
+// A brand-new empty account lands near $0; a popular dev scales naturally.
 const DEFAULT_WEIGHTS: Weights = {
-  followers: 12, following: 0.5, stars: 7, forks: 4,
-  originalRepos: 15, gists: 3, ageYears: 50,
+  followers: 8, following: 0.1, stars: 4, forks: 2,
+  originalRepos: 2, gists: 0.5, ageYears: 5,
 };
 
 const WEIGHT_META: { key: keyof Weights; label: string; max: number; step: number }[] = [
