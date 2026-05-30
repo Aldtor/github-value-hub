@@ -15,17 +15,14 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen text-foreground relative">
-      <header className="max-w-6xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 text-sm tracking-tight">
-          <span className="inline-block w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_currentColor]" />
-          <span className="font-serif text-xl"><span className="text-muted-foreground italic">git</span>worth</span>
-        </Link>
+    <div className="min-h-screen text-foreground">
+      <header className="max-w-5xl mx-auto px-6 pt-6 pb-2 flex items-center justify-between">
+        <Link to="/" className="font-mono text-sm tracking-tight">gitworth</Link>
         <a href="https://docs.github.com/en/rest" target="_blank" rel="noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition font-mono">
-          powered by GitHub API ↗
+          github api ↗
         </a>
       </header>
-      <main className="max-w-6xl mx-auto px-6 pb-24">
+      <main className="max-w-5xl mx-auto px-6 pb-24">
         <GitWorthView />
       </main>
     </div>
