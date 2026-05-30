@@ -181,60 +181,64 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
   return (
     <>
       {showSearch && (
-        <section className="pt-20 pb-12">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight">
+        <section className="pt-24 md:pt-32 pb-16">
+          <h1 className="text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] max-w-3xl">
             What's your GitHub worth?
           </h1>
-          <p className="mt-3 text-muted-foreground max-w-xl text-base">
-            Type a username. Get a profile summary, growth charts, an editable formula, a share link, and a PDF.
+          <p className="mt-5 text-muted-foreground max-w-xl text-lg leading-relaxed">
+            Type a username. Get a profile summary, growth charts, an editable formula,
+            a share link, and a PDF.
           </p>
-          <form onSubmit={onSubmit} className="mt-8 max-w-xl flex gap-2">
-            <div className="flex-1 flex items-center bg-card rounded-md border border-border focus-within:border-foreground transition">
-              <span className="pl-3 text-muted-foreground font-mono text-sm">@</span>
+          <form onSubmit={onSubmit} className="mt-10 max-w-xl flex gap-3">
+            <div className="flex-1 flex items-center border-b border-border focus-within:border-foreground transition">
+              <span className="text-muted-foreground font-mono text-base">@</span>
               <input value={username} onChange={e => setUsername(e.target.value)} placeholder="torvalds"
-                className="flex-1 bg-transparent px-2 py-3 outline-none font-mono text-sm placeholder:text-muted-foreground/60" autoFocus />
+                className="flex-1 bg-transparent px-2 py-3 outline-none font-mono text-base placeholder:text-muted-foreground/50" autoFocus />
             </div>
             <button type="submit" disabled={loading}
-              className="px-5 py-3 rounded-md font-medium text-sm bg-foreground text-background hover:opacity-90 transition disabled:opacity-50">
+              className="px-5 py-3 text-sm font-medium bg-foreground text-background hover:opacity-90 transition disabled:opacity-50">
               {loading ? "…" : "Appraise"}
             </button>
           </form>
-          {error && <p className="mt-4 text-destructive font-mono text-sm">! {error}</p>}
+          {error && <p className="mt-5 text-destructive font-mono text-sm">! {error}</p>}
           {!user && !loading && (
-            <div className="mt-5 flex flex-wrap gap-2 text-xs">
-              <span className="text-muted-foreground font-mono py-1">try</span>
-              {["torvalds","gaearon","sindresorhus","tj"].map(name => (
-                <button key={name} type="button" onClick={() => { setUsername(name); navigate({ to: "/u/$username", params: { username: name } }); }}
-                  className="px-2.5 py-1 rounded-md border border-border bg-card hover:border-foreground transition font-mono">
-                  @{name}
-                </button>
+            <p className="mt-6 text-sm text-muted-foreground">
+              <span className="font-mono">try</span>{" "}
+              {["torvalds","gaearon","sindresorhus","tj"].map((name, i) => (
+                <span key={name}>
+                  {i > 0 && <span className="text-muted-foreground/40 mx-1.5">·</span>}
+                  <button type="button" onClick={() => { setUsername(name); navigate({ to: "/u/$username", params: { username: name } }); }}
+                    className="font-mono hover:text-foreground transition underline-offset-4 hover:underline">
+                    @{name}
+                  </button>
+                </span>
               ))}
-            </div>
+            </p>
           )}
         </section>
       )}
 
       {!showSearch && loading && (
-        <div className="text-center mt-16 flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-muted border-t-foreground animate-spin" />
+        <div className="text-center mt-24 flex flex-col items-center gap-3">
+          <div className="w-5 h-5 rounded-full border-2 border-muted border-t-foreground animate-spin" />
           <p className="text-muted-foreground font-mono text-sm">loading @{initialUsername}…</p>
         </div>
       )}
       {!showSearch && error && (
-        <div className="text-center mt-16">
+        <div className="text-center mt-24">
           <p className="text-destructive font-mono">! {error}</p>
           <Link to="/" className="inline-block mt-4 hover:underline text-sm">← back</Link>
         </div>
       )}
 
       {user && agg && val && (
-        <section className="grid md:grid-cols-3 gap-4 mt-6">
-          <div className="md:col-span-1 p-6 rounded-lg border border-border bg-card">
-            <img src={user.avatar_url} alt={user.login} className="w-20 h-20 rounded-full border border-border" />
-            <h2 className="mt-4 text-xl font-semibold leading-tight">{user.name ?? user.login}</h2>
-            <a href={user.html_url} target="_blank" rel="noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground hover:underline">@{user.login}</a>
-            {user.bio && <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{user.bio}</p>}
-            <ul className="mt-5 space-y-2 text-sm border-t border-border pt-4">
+        <section className="grid md:grid-cols-3 gap-8 md:gap-10 mt-10">
+          <div className="md:col-span-1">
+            <img src={user.avatar_url} alt={user.login} className="w-24 h-24 rounded-full border border-border" />
+            <h2 className="mt-5 text-2xl font-semibold leading-tight tracking-tight">{user.name ?? user.login}</h2>
+            <a href={user.html_url} target="_blank" rel="noreferrer" className="font-mono text-sm text-muted-foreground hover:text-foreground hover:underline underline-offset-4">@{user.login}</a>
+            {user.bio && <p className="mt-4 text-[15px] text-muted-foreground leading-relaxed">{user.bio}</p>}
+            <ul className="mt-6 space-y-2.5 text-sm border-t border-border pt-5">
               {user.company && <Info label="Company" value={user.company} />}
               {user.location && <Info label="Location" value={user.location} />}
               {user.blog && <Info label="Blog" value={user.blog} link />}
@@ -244,35 +248,35 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
             </ul>
           </div>
 
-          <div className="md:col-span-2 flex flex-col gap-4">
-            <div className="p-8 rounded-lg border border-border bg-card">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-mono">Estimated value</p>
-              <p key={val.value} className="mt-3 text-5xl md:text-6xl font-semibold tracking-tight leading-none">
+          <div className="md:col-span-2 flex flex-col gap-10">
+            <div>
+              <p className="text-xs text-muted-foreground font-mono">Estimated value</p>
+              <p key={val.value} className="mt-2 text-6xl md:text-7xl font-semibold tracking-tight leading-none">
                 ${val.value.toLocaleString()}
               </p>
-              <p className="mt-3 text-xs text-muted-foreground font-mono">
+              <p className="mt-4 text-sm text-muted-foreground font-mono leading-relaxed">
                 followers×{weights.followers} + stars×{weights.stars} + forks×{weights.forks} + repos×{weights.originalRepos} + age×{weights.ageYears} + …
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Just a made-up score from public GitHub stats — not a real market price.
+              <p className="mt-2 text-sm text-muted-foreground">
+                A made-up score from public GitHub stats — not a real market price.
               </p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 <button onClick={shareLink}
-                  className="px-3.5 py-2 rounded-md text-sm bg-card border border-border hover:border-foreground transition">
+                  className="px-4 py-2 text-sm border border-border hover:border-foreground transition">
                   {copied ? "✓ Copied" : "Copy share link"}
                 </button>
                 <button onClick={exportPDF}
-                  className="px-3.5 py-2 rounded-md text-sm bg-foreground text-background hover:opacity-90 transition">
+                  className="px-4 py-2 text-sm bg-foreground text-background hover:opacity-90 transition">
                   Export PDF
                 </button>
                 <button onClick={() => setWeights(DEFAULT_WEIGHTS)}
-                  className="px-3.5 py-2 rounded-md text-sm bg-card border border-border hover:border-foreground transition">
+                  className="px-4 py-2 text-sm border border-border hover:border-foreground transition">
                   Reset weights
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5 border-t border-border pt-6">
               <Stat label="Followers" value={user.followers} />
               <Stat label="Following" value={user.following} />
               <Stat label="Repos" value={user.public_repos} />
@@ -284,55 +288,53 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
             </div>
           </div>
 
-          <div className="md:col-span-3 grid md:grid-cols-2 gap-4">
+          <div className="md:col-span-3 grid md:grid-cols-2 gap-10 border-t border-border pt-10">
             <ChartCard title="Cumulative stars">
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={growth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="starGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.22 0 0)" stopOpacity={0.25} />
+                      <stop offset="0%" stopColor="oklch(0.22 0 0)" stopOpacity={0.18} />
                       <stop offset="100%" stopColor="oklch(0.22 0 0)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0 0)" />
-                  <XAxis dataKey="year" stroke="oklch(0.50 0 0)" fontSize={11} />
-                  <YAxis stroke="oklch(0.50 0 0)" fontSize={11} />
-                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.92 0 0)", borderRadius: 6, fontSize: 12 }} />
-                  <Area type="monotone" dataKey="stars" stroke="oklch(0.22 0 0)" fill="url(#starGrad)" strokeWidth={2} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.94 0 0)" />
+                  <XAxis dataKey="year" stroke="oklch(0.55 0 0)" fontSize={11} />
+                  <YAxis stroke="oklch(0.55 0 0)" fontSize={11} />
+                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.92 0 0)", borderRadius: 4, fontSize: 12 }} />
+                  <Area type="monotone" dataKey="stars" stroke="oklch(0.22 0 0)" fill="url(#starGrad)" strokeWidth={1.75} />
                 </AreaChart>
               </ResponsiveContainer>
             </ChartCard>
             <ChartCard title="Followers growth (estimated)">
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={growth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0 0)" />
-                  <XAxis dataKey="year" stroke="oklch(0.50 0 0)" fontSize={11} />
-                  <YAxis stroke="oklch(0.50 0 0)" fontSize={11} />
-                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.92 0 0)", borderRadius: 6, fontSize: 12 }} />
-                  <Line type="monotone" dataKey="followersEst" stroke="oklch(0.22 0 0)" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="repos" stroke="oklch(0.50 0 0)" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.94 0 0)" />
+                  <XAxis dataKey="year" stroke="oklch(0.55 0 0)" fontSize={11} />
+                  <YAxis stroke="oklch(0.55 0 0)" fontSize={11} />
+                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.92 0 0)", borderRadius: 4, fontSize: 12 }} />
+                  <Line type="monotone" dataKey="followersEst" stroke="oklch(0.22 0 0)" strokeWidth={1.75} dot={false} />
+                  <Line type="monotone" dataKey="repos" stroke="oklch(0.55 0 0)" strokeWidth={1.25} strokeDasharray="4 4" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
-              <p className="text-[10px] text-muted-foreground mt-2 font-mono leading-relaxed">
-                GitHub doesn't expose historical followers — modeled from cumulative stars scaled to current ({user.followers}). Dashed: repos.
+              <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
+                GitHub doesn't expose historical followers — modeled from cumulative stars, scaled to current ({user.followers}). Dashed line: repos.
               </p>
             </ChartCard>
           </div>
 
-          <div className="md:col-span-3 p-6 rounded-lg border border-border bg-card">
-            <div className="flex items-baseline justify-between mb-5">
-              <h3 className="text-lg font-semibold">Tweak the formula</h3>
-              <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">live</span>
-            </div>
-            <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+          <div className="md:col-span-3 border-t border-border pt-10">
+            <h3 className="text-xl font-semibold tracking-tight">Tweak the formula</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Drag any weight — the value updates live.</p>
+            <div className="mt-8 grid md:grid-cols-2 gap-x-10 gap-y-6">
               {WEIGHT_META.map(({ key, label, max, step }) => {
                 const w = weights[key]; const contribution = Math.round(val.parts[key]);
                 return (
                   <div key={key}>
-                    <div className="flex justify-between text-sm mb-1.5">
+                    <div className="flex justify-between items-baseline text-sm mb-2">
                       <span>{label}</span>
-                      <span className="font-mono text-muted-foreground">
-                        ×<span className="text-foreground">{w}</span> = <span className="text-foreground font-medium">${contribution.toLocaleString()}</span>
+                      <span className="font-mono text-muted-foreground text-xs">
+                        ×<span className="text-foreground">{w}</span> = <span className="text-foreground">${contribution.toLocaleString()}</span>
                       </span>
                     </div>
                     <input type="range" min={0} max={max} step={step} value={w}
@@ -342,22 +344,23 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
                 );
               })}
             </div>
-            <div className="mt-5 pt-4 border-t border-border font-mono text-xs text-muted-foreground leading-relaxed break-words">
+            <p className="mt-8 pt-5 border-t border-border font-mono text-xs text-muted-foreground leading-relaxed break-words">
               <span className="text-foreground">value</span> = followers×{weights.followers} + following×{weights.following} + stars×{weights.stars} + forks×{weights.forks}
               {" + "}original_repos×{weights.originalRepos} + gists×{weights.gists} + age_years×{weights.ageYears}
-            </div>
+            </p>
           </div>
 
           {topLangs.length > 0 && (
-            <div className="md:col-span-3 p-6 rounded-lg border border-border bg-card">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-mono mb-3">Top languages</p>
-              <div className="flex flex-wrap gap-2">
-                {topLangs.map(([lang, n]) => (
-                  <span key={lang} className="px-2.5 py-1 rounded-md text-sm bg-background border border-border font-mono">
+            <div className="md:col-span-3 border-t border-border pt-8">
+              <p className="text-sm text-muted-foreground mb-3">Top languages</p>
+              <p className="font-mono text-sm leading-relaxed">
+                {topLangs.map(([lang, n], i) => (
+                  <span key={lang}>
+                    {i > 0 && <span className="text-muted-foreground/40 mx-2">·</span>}
                     {lang} <span className="text-muted-foreground">×{n}</span>
                   </span>
                 ))}
-              </div>
+              </p>
             </div>
           )}
         </section>
@@ -368,12 +371,13 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="p-5 rounded-lg border border-border bg-card">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-mono mb-3">{title}</p>
+    <div>
+      <p className="text-sm text-muted-foreground mb-4">{title}</p>
       {children}
     </div>
   );
 }
+
 
 function Info({ label, value, link }: { label: string; value: string; link?: boolean }) {
   return (
@@ -390,9 +394,9 @@ function Info({ label, value, link }: { label: string; value: string; link?: boo
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="p-4 rounded-lg border border-border bg-card">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-mono">{label}</p>
-      <p className="text-xl font-semibold mt-1">{typeof value === "number" ? value.toLocaleString() : value}</p>
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-2xl font-semibold tracking-tight mt-1 tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
     </div>
   );
 }
