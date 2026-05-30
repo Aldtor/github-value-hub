@@ -264,6 +264,9 @@ function Index() {
                 <p className="mt-3 text-xs text-muted-foreground font-mono">
                   followers×{weights.followers} + stars×{weights.stars} + forks×{weights.forks} + repos×{weights.originalRepos} + age×{weights.ageYears} + …
                 </p>
+                <p className="mt-2 text-[11px] text-accent/90 max-w-md mx-auto">
+                  ⚠ Just for fun — not a real market price. It's a made-up score from public GitHub stats, not what your account would actually sell for.
+                </p>
                 <div className="mt-5 flex justify-center gap-2">
                   <button onClick={exportPDF}
                     className="px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
