@@ -6,7 +6,7 @@ import { aggregate, score, rank } from "@/lib/gitworth";
 import type { GhUser, Repo } from "@/components/GitWorthView";
 import { Skeleton, EmptyState } from "@/components/ui-bits";
 
-export const Route = createFileRoute("/compare/$user1/$user2")({
+export const Route = createFileRoute("/compare_/$user1/$user2")({
   head: ({ params }) => ({
     meta: [
       { title: `@${params.user1} vs @${params.user2} — GitWorth Compare` },

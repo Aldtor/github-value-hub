@@ -16,7 +16,7 @@ import { Route as WrappedUsernameRouteImport } from './routes/wrapped.$username'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
 import { Route as BadgesUsernameRouteImport } from './routes/badges.$username'
-import { Route as CompareUser1User2RouteImport } from './routes/compare.$user1.$user2'
+import { Route as CompareUser1User2RouteImport } from './routes/compare_.$user1.$user2'
 
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
@@ -54,14 +54,14 @@ const BadgesUsernameRoute = BadgesUsernameRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareUser1User2Route = CompareUser1User2RouteImport.update({
-  id: '/$user1/$user2',
-  path: '/$user1/$user2',
-  getParentRoute: () => CompareRoute,
+  id: '/compare_/$user1/$user2',
+  path: '/compare/$user1/$user2',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/compare': typeof CompareRouteWithChildren
+  '/compare': typeof CompareRoute
   '/leaderboard': typeof LeaderboardRoute
   '/badges/$username': typeof BadgesUsernameRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
@@ -71,7 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/compare': typeof CompareRouteWithChildren
+  '/compare': typeof CompareRoute
   '/leaderboard': typeof LeaderboardRoute
   '/badges/$username': typeof BadgesUsernameRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
@@ -82,13 +82,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/compare': typeof CompareRouteWithChildren
+  '/compare': typeof CompareRoute
   '/leaderboard': typeof LeaderboardRoute
   '/badges/$username': typeof BadgesUsernameRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
   '/wrapped/$username': typeof WrappedUsernameRoute
-  '/compare/$user1/$user2': typeof CompareUser1User2Route
+  '/compare_/$user1/$user2': typeof CompareUser1User2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,17 +120,18 @@ export interface FileRouteTypes {
     | '/portfolio/$username'
     | '/u/$username'
     | '/wrapped/$username'
-    | '/compare/$user1/$user2'
+    | '/compare_/$user1/$user2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CompareRoute: typeof CompareRouteWithChildren
+  CompareRoute: typeof CompareRoute
   LeaderboardRoute: typeof LeaderboardRoute
   BadgesUsernameRoute: typeof BadgesUsernameRoute
   PortfolioUsernameRoute: typeof PortfolioUsernameRoute
   UUsernameRoute: typeof UUsernameRoute
   WrappedUsernameRoute: typeof WrappedUsernameRoute
+  CompareUser1User2Route: typeof CompareUser1User2Route
 }
 
 declare module '@tanstack/react-router' {
@@ -184,36 +185,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BadgesUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/compare/$user1/$user2': {
-      id: '/compare/$user1/$user2'
-      path: '/$user1/$user2'
+    '/compare_/$user1/$user2': {
+      id: '/compare_/$user1/$user2'
+      path: '/compare/$user1/$user2'
       fullPath: '/compare/$user1/$user2'
       preLoaderRoute: typeof CompareUser1User2RouteImport
-      parentRoute: typeof CompareRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface CompareRouteChildren {
-  CompareUser1User2Route: typeof CompareUser1User2Route
-}
-
-const CompareRouteChildren: CompareRouteChildren = {
-  CompareUser1User2Route: CompareUser1User2Route,
-}
-
-const CompareRouteWithChildren =
-  CompareRoute._addFileChildren(CompareRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CompareRoute: CompareRouteWithChildren,
+  CompareRoute: CompareRoute,
   LeaderboardRoute: LeaderboardRoute,
   BadgesUsernameRoute: BadgesUsernameRoute,
   PortfolioUsernameRoute: PortfolioUsernameRoute,
   UUsernameRoute: UUsernameRoute,
   WrappedUsernameRoute: WrappedUsernameRoute,
+  CompareUser1User2Route: CompareUser1User2Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
