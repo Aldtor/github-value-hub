@@ -9,12 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WrappedUsernameRouteImport } from './routes/wrapped.$username'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
+import { Route as BadgesUsernameRouteImport } from './routes/badges.$username'
+import { Route as CompareUser1User2RouteImport } from './routes/compare.$user1.$user2'
 
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WrappedUsernameRoute = WrappedUsernameRouteImport.update({
+  id: '/wrapped/$username',
+  path: '/wrapped/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UUsernameRoute = UUsernameRouteImport.update({
@@ -22,40 +43,124 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortfolioUsernameRoute = PortfolioUsernameRouteImport.update({
+  id: '/portfolio/$username',
+  path: '/portfolio/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BadgesUsernameRoute = BadgesUsernameRouteImport.update({
+  id: '/badges/$username',
+  path: '/badges/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareUser1User2Route = CompareUser1User2RouteImport.update({
+  id: '/$user1/$user2',
+  path: '/$user1/$user2',
+  getParentRoute: () => CompareRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/badges/$username': typeof BadgesUsernameRoute
+  '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
+  '/wrapped/$username': typeof WrappedUsernameRoute
+  '/compare/$user1/$user2': typeof CompareUser1User2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/badges/$username': typeof BadgesUsernameRoute
+  '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
+  '/wrapped/$username': typeof WrappedUsernameRoute
+  '/compare/$user1/$user2': typeof CompareUser1User2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/compare': typeof CompareRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/badges/$username': typeof BadgesUsernameRoute
+  '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
+  '/wrapped/$username': typeof WrappedUsernameRoute
+  '/compare/$user1/$user2': typeof CompareUser1User2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/u/$username'
+  fullPaths:
+    | '/'
+    | '/compare'
+    | '/leaderboard'
+    | '/badges/$username'
+    | '/portfolio/$username'
+    | '/u/$username'
+    | '/wrapped/$username'
+    | '/compare/$user1/$user2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/u/$username'
-  id: '__root__' | '/' | '/u/$username'
+  to:
+    | '/'
+    | '/compare'
+    | '/leaderboard'
+    | '/badges/$username'
+    | '/portfolio/$username'
+    | '/u/$username'
+    | '/wrapped/$username'
+    | '/compare/$user1/$user2'
+  id:
+    | '__root__'
+    | '/'
+    | '/compare'
+    | '/leaderboard'
+    | '/badges/$username'
+    | '/portfolio/$username'
+    | '/u/$username'
+    | '/wrapped/$username'
+    | '/compare/$user1/$user2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompareRoute: typeof CompareRouteWithChildren
+  LeaderboardRoute: typeof LeaderboardRoute
+  BadgesUsernameRoute: typeof BadgesUsernameRoute
+  PortfolioUsernameRoute: typeof PortfolioUsernameRoute
   UUsernameRoute: typeof UUsernameRoute
+  WrappedUsernameRoute: typeof WrappedUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wrapped/$username': {
+      id: '/wrapped/$username'
+      path: '/wrapped/$username'
+      fullPath: '/wrapped/$username'
+      preLoaderRoute: typeof WrappedUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/u/$username': {
@@ -65,12 +170,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portfolio/$username': {
+      id: '/portfolio/$username'
+      path: '/portfolio/$username'
+      fullPath: '/portfolio/$username'
+      preLoaderRoute: typeof PortfolioUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/badges/$username': {
+      id: '/badges/$username'
+      path: '/badges/$username'
+      fullPath: '/badges/$username'
+      preLoaderRoute: typeof BadgesUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/$user1/$user2': {
+      id: '/compare/$user1/$user2'
+      path: '/$user1/$user2'
+      fullPath: '/compare/$user1/$user2'
+      preLoaderRoute: typeof CompareUser1User2RouteImport
+      parentRoute: typeof CompareRoute
+    }
   }
 }
 
+interface CompareRouteChildren {
+  CompareUser1User2Route: typeof CompareUser1User2Route
+}
+
+const CompareRouteChildren: CompareRouteChildren = {
+  CompareUser1User2Route: CompareUser1User2Route,
+}
+
+const CompareRouteWithChildren =
+  CompareRoute._addFileChildren(CompareRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompareRoute: CompareRouteWithChildren,
+  LeaderboardRoute: LeaderboardRoute,
+  BadgesUsernameRoute: BadgesUsernameRoute,
+  PortfolioUsernameRoute: PortfolioUsernameRoute,
   UUsernameRoute: UUsernameRoute,
+  WrappedUsernameRoute: WrappedUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
