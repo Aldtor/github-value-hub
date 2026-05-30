@@ -405,9 +405,9 @@ function Info({ label, value, link }: { label: string; value: string; link?: boo
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="p-4 rounded-xl border border-border" style={{ background: "var(--gradient-card)" }}>
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="text-2xl font-bold mt-1 font-mono">{typeof value === "number" ? value.toLocaleString() : value}</p>
+    <div className="p-4 rounded-xl border border-border hover:border-primary/40 transition" style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}>
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">{label}</p>
+      <p className="text-2xl font-serif mt-1.5">{typeof value === "number" ? value.toLocaleString() : value}</p>
     </div>
   );
 }
