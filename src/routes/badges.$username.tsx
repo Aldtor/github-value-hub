@@ -63,7 +63,6 @@ function Badges() {
             <div key={label} className="border border-border p-5">
               <div className="flex items-center justify-between">
                 <p className="font-medium text-sm">{label}</p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img} alt={label} />
               </div>
               <Snippet label="Markdown" code={md} />

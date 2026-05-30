@@ -108,11 +108,11 @@ function Landing() {
           <div className="grid grid-cols-3 text-sm font-mono">
             <span></span><span className="text-center">@torvalds</span><span className="text-center">@gaearon</span>
             {[["Followers","220k","85k"],["Stars","182k","94k"],["Repos","11","240"]].map(([l,a,b]) => (
-              <>
+              <div key={l} className="contents">
                 <span className="text-muted-foreground py-1.5">{l}</span>
                 <span className="text-center py-1.5">{a}</span>
                 <span className="text-center py-1.5">{b}</span>
-              </>
+              </div>
             ))}
           </div>
         </PreviewCard>
