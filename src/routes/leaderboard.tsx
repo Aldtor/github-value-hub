@@ -41,7 +41,7 @@ const FEATURED: { login: string; topics: string[] }[] = [
   { login: "wesm",           topics: ["Python"] },
   { login: "mitsuhiko",      topics: ["Python", "Open Source"] },
   { login: "antfu",          topics: ["TypeScript", "Open Source"] },
-  { login: "kentcdodds",     topics: ["React"] },
+  { login: "leerob",         topics: ["JavaScript", "React"] },
   { login: "leerob",         topics: ["JavaScript", "React"] },
 ];
 
