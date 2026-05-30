@@ -57,17 +57,16 @@ function Leaderboard() {
 
   useEffect(() => {
     let cancel = false;
-    (async () => {
-      // sequential to be gentle on rate limit
-      for (const f of FEATURED) {
-        try {
-          const p = await fetchProfile(f.login);
+    // Fetch all profiles in parallel — much faster than sequential.
+    FEATURED.forEach(f => {
+      fetchProfile(f.login)
+        .then(p => {
           if (cancel) return;
           const sc = score(p.user, aggregate(p.user, p.repos)).value;
           setRows(prev => prev.map(r => r.login === f.login ? { ...r, user: p.user, sc, lang: primaryLanguage(p.repos) } : r));
-        } catch { /* skip */ }
-      }
-    })();
+        })
+        .catch(() => { /* skip rate-limited or missing */ });
+    });
     return () => { cancel = true; };
   }, []);
 
