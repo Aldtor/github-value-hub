@@ -42,7 +42,6 @@ const FEATURED: { login: string; topics: string[] }[] = [
   { login: "mitsuhiko",      topics: ["Python", "Open Source"] },
   { login: "antfu",          topics: ["TypeScript", "Open Source"] },
   { login: "leerob",         topics: ["JavaScript", "React"] },
-  { login: "leerob",         topics: ["JavaScript", "React"] },
 ];
 
 const FILTERS = ["Global","Python","JavaScript","TypeScript","Flutter","AI/ML","React","Open Source"] as const;
