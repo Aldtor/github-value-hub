@@ -136,201 +136,274 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const W = doc.internal.pageSize.getWidth();
     const H = doc.internal.pageSize.getHeight();
-    const M = 48;
+    const M = 56;
 
-    // Color palette (monochrome to match site)
-    const INK: [number, number, number] = [17, 17, 17];
-    const SUB: [number, number, number] = [110, 110, 110];
-    const RULE: [number, number, number] = [225, 225, 225];
-    const SOFT: [number, number, number] = [247, 247, 247];
+    // Editorial palette — warm paper + deep ink + single accent
+    const INK: [number, number, number] = [22, 22, 24];
+    const SUB: [number, number, number] = [120, 118, 115];
+    const RULE: [number, number, number] = [228, 224, 217];
+    const PAPER: [number, number, number] = [250, 247, 241];
+    const ACCENT: [number, number, number] = [201, 90, 56]; // burnt sienna
+    const SOFT: [number, number, number] = [243, 238, 229];
 
     const setInk = (c: [number, number, number]) => doc.setTextColor(c[0], c[1], c[2]);
     const setFill = (c: [number, number, number]) => doc.setFillColor(c[0], c[1], c[2]);
     const setDraw = (c: [number, number, number]) => doc.setDrawColor(c[0], c[1], c[2]);
 
+    const r = rankFn(val.value);
+    const st = strengthFn(val.value);
+
     let pageNum = 1;
+    const drawPaper = () => {
+      setFill(PAPER); doc.rect(0, 0, W, H, "F");
+    };
     const drawChrome = () => {
-      // Top brand band
-      setFill(INK); doc.rect(0, 0, W, 28, "F");
-      doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
-      doc.text("GITWORTH", M, 18);
-      doc.setFont("helvetica", "normal"); doc.setFontSize(9);
-      doc.text("github profile valuation", M + 70, 18);
-      doc.text(new Date().toLocaleDateString(), W - M, 18, { align: "right" });
-      // Footer
-      setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, H - 36, W - M, H - 36);
-      doc.setFont("helvetica", "normal"); doc.setFontSize(9); setInk(SUB);
-      doc.text(`gitworth.app  ·  @${user.login}`, M, H - 22);
-      doc.text(`Page ${pageNum}`, W - M, H - 22, { align: "right" });
+      // subtle top + bottom rule, no heavy band
+      setDraw(RULE); doc.setLineWidth(0.5);
+      doc.line(M, 44, W - M, 44);
+      doc.line(M, H - 44, W - M, H - 44);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8); setInk(INK);
+      doc.text("GITWORTH", M, 36);
+      doc.setFont("helvetica", "normal"); setInk(SUB);
+      doc.text("DEVELOPER VALUATION", M + 56, 36);
+      doc.text(new Date().toLocaleDateString(), W - M, 36, { align: "right" });
+      doc.text(`@${user.login}`, M, H - 30);
+      doc.text(`${String(pageNum).padStart(2, "0")}`, W - M, H - 30, { align: "right" });
     };
     const ensure = (need: number, y: number) => {
-      if (y + need > H - 56) { doc.addPage(); pageNum++; drawChrome(); return 60; }
+      if (y + need > H - 64) { doc.addPage(); pageNum++; drawPaper(); drawChrome(); return 80; }
       return y;
     };
+
+    // ===== COVER =====
+    drawPaper();
     drawChrome();
 
-    let y = 60;
+    // Eyebrow
+    setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+    doc.text("— A GITWORTH APPRAISAL", M, 96);
 
-    // Title
-    setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(26);
-    doc.text("Developer Valuation Report", M, y); y += 16;
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10); setInk(SUB);
-    doc.text(`Generated ${new Date().toLocaleString()}`, M, y); y += 24;
+    // Huge editorial title (serif via 'times')
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(64);
+    doc.text("Developer", M, 158);
+    doc.text("Valuation.", M, 218);
 
-    // Identity block
-    setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(18);
+    // Subhead
+    doc.setFont("helvetica", "normal"); doc.setFontSize(11); setInk(SUB);
+    const subhead = `An estimated market value for ${user.name ?? user.login}'s public GitHub presence, derived from followers, stars, repositories, and tenure.`;
+    const subLines = doc.splitTextToSize(subhead, W - M * 2 - 40);
+    doc.text(subLines, M, 246);
+
+    // Big number block
+    let y = 320;
+    setFill(INK); doc.rect(M, y, W - M * 2, 180, "F");
+    // accent stripe
+    setFill(ACCENT); doc.rect(M, y, 6, 180, "F");
+
+    doc.setTextColor(220, 215, 205);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8);
+    doc.text("ESTIMATED VALUE  ·  USD", M + 28, y + 30);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("times", "bold"); doc.setFontSize(96);
+    doc.text(`$${val.value.toLocaleString()}`, M + 28, y + 118);
+
+    setFill(ACCENT); doc.rect(M + 28, y + 132, 40, 2, "F");
+
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+    doc.setTextColor(220, 215, 205);
+    doc.text(`Tier ${st.tier.toUpperCase()}   ·   ${r.percentile.toUpperCase()}   ·   GLOBAL RANK ~${r.globalRank.toLocaleString()}`, M + 28, y + 158);
+
+    y += 180 + 36;
+
+    // Identity row
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(22);
     doc.text(`${user.name ?? user.login}`, M, y);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(12); setInk(SUB);
-    doc.text(`@${user.login}`, M + doc.getTextWidth(`${user.name ?? user.login}`) + 8, y);
-    y += 16;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(11); setInk(SUB);
+    doc.text(`@${user.login}  ·  joined ${new Date(user.created_at).getFullYear()}  ·  ${user.public_repos} public repos`, M, y + 18);
     if (user.bio) {
-      doc.setFont("helvetica", "italic"); doc.setFontSize(10.5); setInk(SUB);
-      const lines = doc.splitTextToSize(user.bio, W - M * 2);
-      doc.text(lines, M, y); y += lines.length * 13 + 4;
+      doc.setFont("times", "italic"); doc.setFontSize(12); setInk(INK);
+      const lines = doc.splitTextToSize(`"${user.bio}"`, W - M * 2);
+      doc.text(lines, M, y + 42);
     }
-    y += 6;
 
-    // Info grid (two columns)
-    const info: [string, string][] = [
-      ["Profile", user.html_url],
-      ["Joined", new Date(user.created_at).toLocaleDateString()],
-      ["Company", user.company ?? "—"],
-      ["Location", user.location ?? "—"],
-      ["Blog", user.blog || "—"],
-      ["Public repos", String(user.public_repos)],
+    // ===== PAGE 2: BREAKDOWN =====
+    doc.addPage(); pageNum++; drawPaper(); drawChrome();
+    y = 88;
+
+    // Section header
+    setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+    doc.text("§ 01", M, y);
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(32);
+    doc.text("How the value is built.", M, y + 32);
+    y += 56;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10); setInk(SUB);
+    doc.text("Each signal is weighted and converted to dollars. Bars below show relative contribution.", M, y);
+    y += 28;
+
+    // Contribution bars
+    const parts: { label: string; value: number; raw: string; weight: string }[] = [
+      { label: "Followers",      value: val.parts.followers,    raw: user.followers.toLocaleString(),  weight: `× ${weights.followers}` },
+      { label: "Stars",          value: val.parts.stars,        raw: agg.stars.toLocaleString(),       weight: `× ${weights.stars}` },
+      { label: "Original repos", value: val.parts.originalRepos,raw: agg.original.toLocaleString(),    weight: `× ${weights.originalRepos}` },
+      { label: "Forks",          value: val.parts.forks,        raw: agg.forks.toLocaleString(),       weight: `× ${weights.forks}` },
+      { label: "Account age",    value: val.parts.ageYears,     raw: `${agg.ageYears.toFixed(1)} yr`,  weight: `× ${weights.ageYears}` },
+      { label: "Following",      value: val.parts.following,    raw: user.following.toLocaleString(),  weight: `× ${weights.following}` },
+      { label: "Gists",          value: val.parts.gists,        raw: user.public_gists.toLocaleString(),weight: `× ${weights.gists}` },
     ];
-    doc.setFontSize(10);
+    const maxVal = Math.max(1, ...parts.map(p => p.value));
+    const barAreaW = W - M * 2;
+    const labelW = 130;
+    const valW = 90;
+    const barW = barAreaW - labelW - valW - 20;
+
+    parts.forEach((p) => {
+      y = ensure(38, y);
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+      doc.text(p.label, M, y);
+      doc.setFont("helvetica", "normal"); setInk(SUB); doc.setFontSize(9);
+      doc.text(`${p.raw}  ${p.weight}`, M, y + 13);
+
+      // bar track
+      const bx = M + labelW;
+      const by = y - 6;
+      setFill(SOFT); doc.rect(bx, by, barW, 10, "F");
+      const w = Math.max(1, (p.value / maxVal) * barW);
+      setFill(ACCENT); doc.rect(bx, by, w, 10, "F");
+
+      // value
+      setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(14);
+      doc.text(`$${Math.round(p.value).toLocaleString()}`, W - M, y + 4, { align: "right" });
+      y += 30;
+    });
+
+    // Total
+    y = ensure(50, y);
+    setDraw(INK); doc.setLineWidth(1.2); doc.line(M, y, W - M, y); y += 22;
+    setInk(SUB); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+    doc.text("TOTAL ESTIMATED VALUE", M, y);
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(28);
+    doc.text(`$${val.value.toLocaleString()}`, W - M, y + 6, { align: "right" });
+    y += 36;
+
+    // ===== PAGE 3: PROFILE + ACHIEVEMENTS =====
+    doc.addPage(); pageNum++; drawPaper(); drawChrome();
+    y = 88;
+
+    setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+    doc.text("§ 02", M, y);
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(32);
+    doc.text("The developer.", M, y + 32);
+    y += 70;
+
+    // Two-column info
+    const info: [string, string][] = [
+      ["Profile",  user.html_url],
+      ["Joined",   new Date(user.created_at).toLocaleDateString()],
+      ["Company",  user.company ?? "—"],
+      ["Location", user.location ?? "—"],
+      ["Blog",     user.blog || "—"],
+      ["Repos",    String(user.public_repos)],
+    ];
     const colW = (W - M * 2) / 2;
     info.forEach((row, i) => {
       const cx = M + (i % 2) * colW;
-      const cy = y + Math.floor(i / 2) * 16;
-      doc.setFont("helvetica", "bold"); setInk(INK);
-      doc.text(`${row[0]}`, cx, cy);
-      doc.setFont("helvetica", "normal"); setInk(SUB);
-      const val = doc.splitTextToSize(String(row[1]), colW - 80)[0];
-      doc.text(val, cx + 72, cy);
+      const cy = y + Math.floor(i / 2) * 28;
+      setInk(SUB); doc.setFont("helvetica", "bold"); doc.setFontSize(8);
+      doc.text(row[0].toUpperCase(), cx, cy);
+      setInk(INK); doc.setFont("helvetica", "normal"); doc.setFontSize(10.5);
+      const v = doc.splitTextToSize(String(row[1]), colW - 20)[0];
+      doc.text(v, cx, cy + 13);
     });
-    y += Math.ceil(info.length / 2) * 16 + 14;
-
-    // Hero valuation card
-    const r = rankFn(val.value);
-    const st = strengthFn(val.value);
-    const cardH = 96;
-    setFill(INK); doc.roundedRect(M, y, W - M * 2, cardH, 6, 6, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-    doc.text("ESTIMATED VALUE", M + 20, y + 24);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(40);
-    doc.text(`$${val.value.toLocaleString()}`, M + 20, y + 64);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-    doc.text(`Tier ${st.tier}  ·  ${r.percentile}  ·  Global rank ~${r.globalRank.toLocaleString()}`, M + 20, y + 84);
-
-    // Right side mini stats
-    const mini: [string, string][] = [
-      ["Followers", user.followers.toLocaleString()],
-      ["Total stars", agg.stars.toLocaleString()],
-      ["Original repos", String(agg.original)],
-      ["Account age", `${agg.ageYears.toFixed(1)} yr`],
-    ];
-    const miniX = W - M - 170;
-    mini.forEach((m, i) => {
-      const cy = y + 24 + i * 16;
-      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(180, 180, 180);
-      doc.text(m[0], miniX, cy);
-      doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
-      doc.text(m[1], W - M - 20, cy, { align: "right" });
-    });
-    y += cardH + 22;
-
-    // Breakdown table
-    y = ensure(180, y);
-    setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(13);
-    doc.text("Score breakdown", M, y); y += 6;
-    setDraw(INK); doc.setLineWidth(1); doc.line(M, y, W - M, y); y += 14;
-
-    const rows: [string, string, string, string][] = [
-      ["Followers", user.followers.toLocaleString(), `× ${weights.followers}`, `$${Math.round(val.parts.followers).toLocaleString()}`],
-      ["Following", user.following.toLocaleString(), `× ${weights.following}`, `$${Math.round(val.parts.following).toLocaleString()}`],
-      ["Stars", agg.stars.toLocaleString(), `× ${weights.stars}`, `$${Math.round(val.parts.stars).toLocaleString()}`],
-      ["Forks", agg.forks.toLocaleString(), `× ${weights.forks}`, `$${Math.round(val.parts.forks).toLocaleString()}`],
-      ["Original repos", agg.original.toLocaleString(), `× ${weights.originalRepos}`, `$${Math.round(val.parts.originalRepos).toLocaleString()}`],
-      ["Gists", user.public_gists.toLocaleString(), `× ${weights.gists}`, `$${Math.round(val.parts.gists).toLocaleString()}`],
-      ["Account age", `${agg.ageYears.toFixed(1)} yr`, `× ${weights.ageYears}`, `$${Math.round(val.parts.ageYears).toLocaleString()}`],
-    ];
-    const c1 = M + 6, c2 = M + 200, c3 = M + 320, c4 = W - M - 6;
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); setInk(SUB);
-    doc.text("METRIC", c1, y);
-    doc.text("VALUE", c2, y);
-    doc.text("WEIGHT", c3, y);
-    doc.text("CONTRIBUTION", c4, y, { align: "right" });
-    y += 8;
-    setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 4;
-
-    rows.forEach((row, i) => {
-      const rowH = 18;
-      if (i % 2 === 0) { setFill(SOFT); doc.rect(M, y, W - M * 2, rowH, "F"); }
-      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10.5);
-      doc.text(row[0], c1, y + 12);
-      doc.setFont("helvetica", "normal"); setInk(SUB);
-      doc.text(row[1], c2, y + 12);
-      doc.text(row[2], c3, y + 12);
-      setInk(INK); doc.setFont("helvetica", "bold");
-      doc.text(row[3], c4, y + 12, { align: "right" });
-      y += rowH;
-    });
-    // Total row
-    setDraw(INK); doc.setLineWidth(1); doc.line(M, y, W - M, y); y += 16;
-    setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("Total estimated value", c1, y);
-    doc.setFontSize(14);
-    doc.text(`$${val.value.toLocaleString()}`, c4, y, { align: "right" });
-    y += 28;
+    y += Math.ceil(info.length / 2) * 28 + 24;
 
     // Achievements
     const ach = achievementsFn(user, repos, agg);
     if (ach.length) {
-      y = ensure(60 + Math.ceil(ach.length / 2) * 22, y);
-      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(13);
-      doc.text("Achievements", M, y); y += 6;
-      setDraw(INK); doc.setLineWidth(1); doc.line(M, y, W - M, y); y += 14;
-      ach.forEach((a, i) => {
-        const cx = M + (i % 2) * colW;
-        const cy = y + Math.floor(i / 2) * 22;
-        setFill(SOFT); doc.roundedRect(cx, cy - 12, colW - 10, 18, 3, 3, "F");
-        setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10);
-        doc.text(a.label, cx + 8, cy);
-        doc.setFont("helvetica", "normal"); setInk(SUB); doc.setFontSize(9);
-        doc.text(a.description, cx + 8 + doc.getTextWidth(a.label) + 10, cy);
+      y = ensure(80, y);
+      setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 24;
+      setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+      doc.text("§ 03", M, y);
+      setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(24);
+      doc.text("Achievements.", M, y + 26);
+      y += 52;
+
+      ach.forEach((a) => {
+        y = ensure(40, y);
+        // numbered list, editorial
+        setInk(ACCENT); doc.setFont("times", "bold"); doc.setFontSize(18);
+        doc.text(a.label, M, y);
+        setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+        doc.text(a.description, M, y + 15);
+        setDraw(RULE); doc.setLineWidth(0.3); doc.line(M, y + 26, W - M, y + 26);
+        y += 36;
       });
-      y += Math.ceil(ach.length / 2) * 22 + 14;
     }
 
-    // Growth table
+    // ===== PAGE 4: GROWTH =====
     if (growth.length) {
-      y = ensure(60 + growth.length * 14, y);
-      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(13);
-      doc.text("Growth over time", M, y); y += 6;
-      setDraw(INK); doc.setLineWidth(1); doc.line(M, y, W - M, y); y += 14;
-      const g1 = M + 6, g2 = M + 120, g3 = M + 260, g4 = W - M - 6;
-      doc.setFont("helvetica", "bold"); doc.setFontSize(9); setInk(SUB);
+      doc.addPage(); pageNum++; drawPaper(); drawChrome();
+      y = 88;
+      setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
+      doc.text("§ 04", M, y);
+      setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(32);
+      doc.text("Growth over time.", M, y + 32);
+      y += 70;
+
+      // Sparkline chart for stars
+      const chartH = 160;
+      const chartW = W - M * 2;
+      const maxStars = Math.max(1, ...growth.map(g => g.stars));
+      setFill(SOFT); doc.rect(M, y, chartW, chartH, "F");
+      // baseline
+      setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y + chartH, W - M, y + chartH);
+
+      const step = growth.length > 1 ? chartW / (growth.length - 1) : 0;
+      // area
+      setFill(ACCENT);
+      // draw bars
+      const bw = Math.min(28, step * 0.6);
+      growth.forEach((g, i) => {
+        const h = (g.stars / maxStars) * (chartH - 30);
+        const x = M + i * step - bw / 2 + (growth.length === 1 ? chartW / 2 : 0);
+        doc.rect(x, y + chartH - h, bw, h, "F");
+      });
+      // year labels
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+      growth.forEach((g, i) => {
+        const x = M + i * step + (growth.length === 1 ? chartW / 2 : 0);
+        doc.text(String(g.year), x, y + chartH + 14, { align: "center" });
+      });
+      y += chartH + 32;
+
+      // Table
+      const g1 = M, g2 = M + 80, g3 = M + 220, g4 = W - M;
+      setInk(SUB); doc.setFont("helvetica", "bold"); doc.setFontSize(8);
       doc.text("YEAR", g1, y);
       doc.text("CUMULATIVE STARS", g2, y);
       doc.text("CUMULATIVE REPOS", g3, y);
       doc.text("FOLLOWERS (EST.)", g4, y, { align: "right" });
       y += 6;
-      setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 4;
-      growth.forEach((p, i) => {
-        y = ensure(18, y);
-        const rowH = 16;
-        if (i % 2 === 0) { setFill(SOFT); doc.rect(M, y, W - M * 2, rowH, "F"); }
-        setInk(INK); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-        doc.text(String(p.year), g1, y + 11);
-        doc.text(p.stars.toLocaleString(), g2, y + 11);
-        doc.text(p.repos.toLocaleString(), g3, y + 11);
-        doc.text(p.followersEst.toLocaleString(), g4, y + 11, { align: "right" });
-        y += rowH;
+      setDraw(INK); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 4;
+
+      growth.forEach((p) => {
+        y = ensure(20, y);
+        setInk(INK); doc.setFont("helvetica", "normal"); doc.setFontSize(10.5);
+        doc.text(String(p.year), g1, y + 12);
+        doc.text(p.stars.toLocaleString(), g2, y + 12);
+        doc.text(p.repos.toLocaleString(), g3, y + 12);
+        doc.text(p.followersEst.toLocaleString(), g4, y + 12, { align: "right" });
+        setDraw(RULE); doc.setLineWidth(0.3); doc.line(M, y + 18, W - M, y + 18);
+        y += 20;
       });
     }
+
+    // Colophon
+    y = ensure(60, y + 20);
+    setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 18;
+    setInk(SUB); doc.setFont("times", "italic"); doc.setFontSize(9);
+    doc.text("Generated by GitWorth — a playful appraisal, not financial advice.", M, y);
+    doc.text(new Date().toLocaleString(), W - M, y, { align: "right" });
 
     doc.save(`gitworth-${user.login}.pdf`);
   }
