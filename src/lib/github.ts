@@ -83,15 +83,15 @@ export function getFallbackProfile(username: string): { user: GhUser; repos: Rep
 
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
   try {
     return await fetch(input, { ...init, signal: controller.signal });
   } finally {
-    window.clearTimeout(timeout);
+    clearTimeout(timeout);
   }
 }
 
-function cacheGet<T>(key: string): T | null {
+function cacheGet<T>(key: string, allowStale = false): T | null {
   if (typeof sessionStorage === "undefined") return null;
   try {
     const raw = sessionStorage.getItem(key);
