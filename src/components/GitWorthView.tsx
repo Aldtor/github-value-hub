@@ -425,31 +425,82 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
       doc.text("Growth over time.", M, y + 32);
       y += 70;
 
-      // Sparkline chart for stars
-      const chartH = 160;
-      const chartW = W - M * 2;
-      const maxStars = Math.max(1, ...growth.map(g => g.stars));
-      setFill(SOFT); doc.rect(M, y, chartW, chartH, "F");
-      // baseline
-      setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y + chartH, W - M, y + chartH);
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+      doc.text("Cumulative stars and original repositories by year.", M, y);
+      y += 14;
 
-      const step = growth.length > 1 ? chartW / (growth.length - 1) : 0;
-      // area
-      setFill(ACCENT);
-      // draw bars
-      const bw = Math.min(28, step * 0.6);
+      // Legend
+      setFill(ACCENT); doc.rect(M, y, 10, 10, "F");
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(8.5);
+      doc.text("CUMULATIVE STARS", M + 16, y + 8);
+      setFill(ACCENT2); doc.rect(M + 140, y, 10, 10, "F");
+      doc.text("CUMULATIVE REPOS", M + 156, y + 8);
+      y += 22;
+
+      // Chart area
+      const chartH = 180;
+      const chartLeft = M + 44; // room for y-axis labels
+      const chartRight = W - M;
+      const chartW = chartRight - chartLeft;
+      const chartTop = y;
+      const chartBottom = y + chartH;
+      const maxStars = Math.max(1, ...growth.map(g => g.stars));
+      const maxRepos = Math.max(1, ...growth.map(g => g.repos));
+
+      // Plot background
+      setFill(SOFT); doc.rect(chartLeft, chartTop, chartW, chartH, "F");
+
+      // Horizontal gridlines + y-axis labels (left = stars, right = repos)
+      const ticks = 4;
+      setDraw(RULE); doc.setLineWidth(0.5);
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+      for (let i = 0; i <= ticks; i++) {
+        const gy = chartTop + (chartH / ticks) * i;
+        doc.line(chartLeft, gy, chartRight, gy);
+        const starVal = Math.round(maxStars * (1 - i / ticks));
+        const repoVal = Math.round(maxRepos * (1 - i / ticks));
+        doc.text(starVal.toLocaleString(), chartLeft - 4, gy + 2.5, { align: "right" });
+        doc.text(repoVal.toLocaleString(), chartRight + 4, gy + 2.5);
+      }
+      // Axis title
+      setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(7);
+      doc.text("STARS", chartLeft - 4, chartTop - 6, { align: "right" });
+      setInk(ACCENT2);
+      doc.text("REPOS", chartRight + 4, chartTop - 6);
+
+      // Grouped bars per year
+      const n = growth.length;
+      const slot = chartW / Math.max(1, n);
+      const bw = Math.min(22, slot * 0.35);
       growth.forEach((g, i) => {
-        const h = (g.stars / maxStars) * (chartH - 30);
-        const x = M + i * step - bw / 2 + (growth.length === 1 ? chartW / 2 : 0);
-        doc.rect(x, y + chartH - h, bw, h, "F");
+        const cx = chartLeft + slot * (i + 0.5);
+        const hS = (g.stars / maxStars) * (chartH - 10);
+        const hR = (g.repos / maxRepos) * (chartH - 10);
+        // stars bar (left of center)
+        setFill(ACCENT); doc.rect(cx - bw - 1, chartBottom - hS, bw, hS, "F");
+        setDraw(INK); doc.setLineWidth(0.3);
+        doc.rect(cx - bw - 1, chartBottom - hS, bw, hS, "S");
+        // repos bar (right of center)
+        setFill(ACCENT2); doc.rect(cx + 1, chartBottom - hR, bw, hR, "F");
+        doc.rect(cx + 1, chartBottom - hR, bw, hR, "S");
       });
-      // year labels
-      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+
+      // X-axis baseline
+      setDraw(INK); doc.setLineWidth(0.8);
+      doc.line(chartLeft, chartBottom, chartRight, chartBottom);
+
+      // Year labels
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(8);
       growth.forEach((g, i) => {
-        const x = M + i * step + (growth.length === 1 ? chartW / 2 : 0);
-        doc.text(String(g.year), x, y + chartH + 14, { align: "center" });
+        const cx = chartLeft + slot * (i + 0.5);
+        doc.text(String(g.year), cx, chartBottom + 14, { align: "center" });
       });
-      y += chartH + 32;
+      // X-axis title
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+      doc.text("YEAR", chartLeft + chartW / 2, chartBottom + 28, { align: "center" });
+
+      y = chartBottom + 44;
+
 
       // Table
       const g1 = M, g2 = M + 80, g3 = M + 220, g4 = W - M;
