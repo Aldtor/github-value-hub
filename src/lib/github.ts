@@ -97,7 +97,7 @@ function cacheGet<T>(key: string, allowStale = false): T | null {
     const raw = sessionStorage.getItem(key);
     if (!raw) return null;
     const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > TTL) return null;
+    if (!allowStale && Date.now() - ts > TTL) return null;
     return data as T;
   } catch { return null; }
 }
@@ -108,30 +108,39 @@ function cacheSet(key: string, data: unknown) {
 
 export async function fetchProfile(username: string): Promise<{ user: GhUser; repos: Repo[] }> {
   const key = `gh:${username.toLowerCase()}`;
-  const cached = cacheGet<{ user: GhUser; repos: Repo[] }>(key);
-  if (cached) return cached;
-  const fallback = getFallbackProfile(username);
+  const fresh = cacheGet<{ user: GhUser; repos: Repo[] }>(key);
+  if (fresh) return fresh;
+  const fallback = () =>
+    getFallbackProfile(username) ?? cacheGet<{ user: GhUser; repos: Repo[] }>(key, true);
   const u = encodeURIComponent(username);
   try {
     const userRes = await fetchWithTimeout(`https://api.github.com/users/${u}`);
     if (!userRes.ok) {
-      if (fallback && [403, 429, 500, 502, 503, 504].includes(userRes.status)) return fallback;
-      throw new Error(userRes.status === 404 ? "User not found" : "GitHub is limiting requests. Try again shortly.");
+      if (userRes.status === 404) {
+        const fb = fallback();
+        if (fb) return fb;
+        throw new Error("User not found");
+      }
+      const fb = fallback();
+      if (fb) return fb;
+      throw new Error("GitHub is rate-limiting requests. Try again shortly.");
     }
     const user: GhUser = await userRes.json();
     const reposRes = await fetchWithTimeout(`https://api.github.com/users/${u}/repos?per_page=100&sort=updated`);
-    const repos: Repo[] = reposRes.ok ? await reposRes.json() : (fallback?.repos ?? []);
+    const repos: Repo[] = reposRes.ok ? await reposRes.json() : (fallback()?.repos ?? []);
     const data = { user, repos };
     cacheSet(key, data);
     return data;
   } catch (error) {
-    if (fallback) return fallback;
+    const fb = fallback();
+    if (fb) return fb;
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new Error("GitHub took too long to respond. Try again shortly.");
     }
     throw error instanceof Error ? error : new Error("GitHub is unavailable. Try again shortly.");
   }
 }
+
 
 export function primaryLanguage(repos: Repo[]): string | null {
   const m = new Map<string, number>();
