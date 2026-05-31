@@ -285,8 +285,19 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     doc.text("How the value is built.", M, y + 32);
     y += 56;
     doc.setFont("helvetica", "normal"); doc.setFontSize(10); setInk(SUB);
-    doc.text("Each signal is weighted and converted to dollars. Bars below show relative contribution.", M, y);
-    y += 28;
+    doc.text("Each signal is weighted and converted to dollars. Bar length shows % of total value.", M, y);
+    y += 20;
+
+    // Legend
+    const legendY = y;
+    setFill(ACCENT); doc.rect(M, legendY, 10, 10, "F");
+    setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(8.5);
+    doc.text("DOLLAR CONTRIBUTION", M + 16, legendY + 8);
+    setFill(SOFT); doc.rect(M + 170, legendY, 10, 10, "F");
+    setDraw(RULE); doc.rect(M + 170, legendY, 10, 10, "S");
+    setInk(SUB);
+    doc.text("REMAINING (relative to top metric)", M + 186, legendY + 8);
+    y += 26;
 
     // Contribution bars
     const parts: { label: string; value: number; raw: string; weight: string }[] = [
@@ -297,32 +308,49 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
       { label: "Account age",    value: val.parts.ageYears,     raw: `${agg.ageYears.toFixed(1)} yr`,  weight: `× ${weights.ageYears}` },
       { label: "Following",      value: val.parts.following,    raw: user.following.toLocaleString(),  weight: `× ${weights.following}` },
       { label: "Gists",          value: val.parts.gists,        raw: user.public_gists.toLocaleString(),weight: `× ${weights.gists}` },
-    ];
+    ].sort((a, b) => b.value - a.value);
     const maxVal = Math.max(1, ...parts.map(p => p.value));
-    const barAreaW = W - M * 2;
+    const totalVal = Math.max(1, parts.reduce((s, p) => s + p.value, 0));
     const labelW = 130;
-    const valW = 90;
-    const barW = barAreaW - labelW - valW - 20;
+    const valW = 110;
+    const barW = W - M * 2 - labelW - valW;
 
     parts.forEach((p) => {
-      y = ensure(38, y);
-      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10);
-      doc.text(p.label, M, y);
-      doc.setFont("helvetica", "normal"); setInk(SUB); doc.setFontSize(9);
-      doc.text(`${p.raw}  ${p.weight}`, M, y + 13);
+      y = ensure(40, y);
+      // label + raw
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10.5);
+      doc.text(p.label, M, y + 2);
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(8.5);
+      doc.text(`${p.raw} ${p.weight}`, M, y + 15);
 
-      // bar track
+      // bar track (high-contrast: dark outline)
       const bx = M + labelW;
       const by = y - 6;
-      setFill(SOFT); doc.rect(bx, by, barW, 10, "F");
-      const w = Math.max(1, (p.value / maxVal) * barW);
-      setFill(ACCENT); doc.rect(bx, by, w, 10, "F");
+      const bh = 14;
+      setFill(SOFT); doc.rect(bx, by, barW, bh, "F");
+      const w = Math.max(0.5, (p.value / maxVal) * barW);
+      setFill(ACCENT); doc.rect(bx, by, w, bh, "F");
+      // outline for contrast in both modes
+      setDraw(INK); doc.setLineWidth(0.4);
+      doc.rect(bx, by, barW, bh, "S");
 
-      // value
+      // percentage label inside/after bar
+      const pct = ((p.value / totalVal) * 100).toFixed(0);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8);
+      if (w > 30) {
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${pct}%`, bx + 6, by + 10);
+      } else {
+        setInk(INK);
+        doc.text(`${pct}%`, bx + w + 4, by + 10);
+      }
+
+      // dollar value
       setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(14);
-      doc.text(`$${Math.round(p.value).toLocaleString()}`, W - M, y + 4, { align: "right" });
-      y += 30;
+      doc.text(`$${Math.round(p.value).toLocaleString()}`, W - M, y + 6, { align: "right" });
+      y += 32;
     });
+
 
     // Total
     y = ensure(50, y);
