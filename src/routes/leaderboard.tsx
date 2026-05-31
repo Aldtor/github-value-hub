@@ -8,16 +8,19 @@ import type { GhUser, Repo } from "@/components/GitWorthView";
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
     meta: [
-      { title: "Leaderboard — GitWorth" },
-      { name: "description", content: "Featured developers ranked by GitWorth Score, with language and topic filters." },
-      { property: "og:title", content: "Leaderboard — GitWorth" },
-      { property: "og:description", content: "Top developers by GitWorth Score." },
-      { property: "og:url", content: "/leaderboard" },
+      { title: "GitHub Developer Leaderboard — GitWorth" },
+      { name: "description", content: "Top GitHub developers ranked by GitWorth Score. Filter by language and topic — JavaScript, TypeScript, Python, React, Flutter, AI/ML and more." },
+      { property: "og:title", content: "GitHub Developer Leaderboard — GitWorth" },
+      { property: "og:description", content: "Top GitHub developers ranked by GitWorth Score." },
+      { property: "og:url", content: "https://git-worth-whiz.lovable.app/leaderboard" },
+      { property: "og:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
+      { name: "twitter:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
     ],
-    links: [{ rel: "canonical", href: "/leaderboard" }],
+    links: [{ rel: "canonical", href: "https://git-worth-whiz.lovable.app/leaderboard" }],
   }),
   component: Leaderboard,
 });
+
 
 // Curated featured developers. The "global" leaderboard is community-curated, not a
 // crawl of every GitHub user (which would require a backend).

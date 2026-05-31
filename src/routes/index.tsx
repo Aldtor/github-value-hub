@@ -5,16 +5,36 @@ import { Shell } from "@/components/Shell";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "GitWorth — Discover your GitHub value" },
-      { name: "description", content: "Analyze repositories, followers, stars, and contributions. Compare with developers worldwide and see where you rank." },
+      { title: "GitWorth — Discover your GitHub value, score & rank" },
+      { name: "description", content: "Free GitHub profile appraisal. Get your GitWorth score from followers, stars, repos and contributions, compare with other devs, and embed a shareable badge." },
       { property: "og:title", content: "GitWorth — Discover your GitHub value" },
       { property: "og:description", content: "Score, rank, compare, and share your GitHub profile." },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://git-worth-whiz.lovable.app/" },
+      { property: "og:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
+      { name: "twitter:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://git-worth-whiz.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            { "@type": "Question", name: "Is this a real valuation?", acceptedAnswer: { "@type": "Answer", text: "No. It's a playful score derived from public stats — fun, not financial." } },
+            { "@type": "Question", name: "Do you store my data?", acceptedAnswer: { "@type": "Answer", text: "Scan history lives only in your browser's localStorage." } },
+            { "@type": "Question", name: "Where does the data come from?", acceptedAnswer: { "@type": "Answer", text: "The public GitHub REST API. No login required." } },
+            { "@type": "Question", name: "Can I embed my score?", acceptedAnswer: { "@type": "Answer", text: "Yes — every profile page has an embeddable badge." } },
+            { "@type": "Question", name: "How is the rank calculated?", acceptedAnswer: { "@type": "Answer", text: "Score is bucketed against a calibrated distribution of public devs." } },
+            { "@type": "Question", name: "Is this free?", acceptedAnswer: { "@type": "Answer", text: "Yes. No ads, no signup." } },
+          ],
+        }),
+      },
+    ],
   }),
   component: Landing,
 });
+
 
 function Landing() {
   const [u, setU] = useState("");

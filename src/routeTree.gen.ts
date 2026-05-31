@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,6 +19,11 @@ import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$usern
 import { Route as BadgesUsernameRouteImport } from './routes/badges.$username'
 import { Route as CompareUser1User2RouteImport } from './routes/compare_.$user1.$user2'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$username': typeof BadgesUsernameRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$username': typeof BadgesUsernameRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/compare': typeof CompareRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$username': typeof BadgesUsernameRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/u/$username': typeof UUsernameRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/compare'
     | '/leaderboard'
+    | '/sitemap.xml'
     | '/badges/$username'
     | '/portfolio/$username'
     | '/u/$username'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/compare'
     | '/leaderboard'
+    | '/sitemap.xml'
     | '/badges/$username'
     | '/portfolio/$username'
     | '/u/$username'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/compare'
     | '/leaderboard'
+    | '/sitemap.xml'
     | '/badges/$username'
     | '/portfolio/$username'
     | '/u/$username'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CompareRoute: typeof CompareRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BadgesUsernameRoute: typeof BadgesUsernameRoute
   PortfolioUsernameRoute: typeof PortfolioUsernameRoute
   UUsernameRoute: typeof UUsernameRoute
@@ -136,6 +149,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompareRoute: CompareRoute,
   LeaderboardRoute: LeaderboardRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   BadgesUsernameRoute: BadgesUsernameRoute,
   PortfolioUsernameRoute: PortfolioUsernameRoute,
   UUsernameRoute: UUsernameRoute,

@@ -9,17 +9,20 @@ import type { GhUser, Repo } from "@/components/GitWorthView";
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
     meta: [
-      { title: `@${params.username} on GitWorth — score, rank & breakdown` },
-      { name: "description", content: `See @${params.username}'s GitHub stats, GitWorth score, global rank, achievements and growth.` },
+      { title: `@${params.username} — GitWorth score, rank & GitHub stats` },
+      { name: "description", content: `See @${params.username}'s GitHub stats, GitWorth score, global rank, achievements and growth charts.` },
       { property: "og:title", content: `@${params.username} on GitWorth` },
       { property: "og:description", content: `Score, rank, achievements and charts for @${params.username}.` },
-      { property: "og:url", content: `/u/${params.username}` },
+      { property: "og:url", content: `https://git-worth-whiz.lovable.app/u/${params.username}` },
       { property: "og:type", content: "profile" },
+      { property: "og:image", content: `https://github.com/${params.username}.png?size=512` },
+      { name: "twitter:image", content: `https://github.com/${params.username}.png?size=512` },
     ],
-    links: [{ rel: "canonical", href: `/u/${params.username}` }],
+    links: [{ rel: "canonical", href: `https://git-worth-whiz.lovable.app/u/${params.username}` }],
   }),
   component: SharePage,
 });
+
 
 function SharePage() {
   const { username } = Route.useParams();
