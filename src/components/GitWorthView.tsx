@@ -131,7 +131,30 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     catch { window.prompt("Copy link:", url); }
   }
 
-  function exportPDF() {
+  async function loadAvatar(url: string, size = 256): Promise<string | null> {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const bmp = await createImageBitmap(blob);
+      const canvas = document.createElement("canvas");
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      // circular clip
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(bmp, 0, 0, size, size);
+      ctx.restore();
+      return canvas.toDataURL("image/png");
+    } catch {
+      return null;
+    }
+  }
+
+  async function exportPDF() {
     if (!user || !agg || !val) return;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const W = doc.internal.pageSize.getWidth();
@@ -143,7 +166,8 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     const SUB: [number, number, number] = [120, 118, 115];
     const RULE: [number, number, number] = [228, 224, 217];
     const PAPER: [number, number, number] = [250, 247, 241];
-    const ACCENT: [number, number, number] = [201, 90, 56]; // burnt sienna
+    const ACCENT: [number, number, number] = [201, 90, 56];   // burnt sienna (primary)
+    const ACCENT2: [number, number, number] = [42, 76, 110];  // deep navy (secondary)
     const SOFT: [number, number, number] = [243, 238, 229];
 
     const setInk = (c: [number, number, number]) => doc.setTextColor(c[0], c[1], c[2]);
@@ -152,13 +176,13 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
 
     const r = rankFn(val.value);
     const st = strengthFn(val.value);
+    const avatarData = await loadAvatar(user.avatar_url);
 
     let pageNum = 1;
     const drawPaper = () => {
       setFill(PAPER); doc.rect(0, 0, W, H, "F");
     };
     const drawChrome = () => {
-      // subtle top + bottom rule, no heavy band
       setDraw(RULE); doc.setLineWidth(0.5);
       doc.line(M, 44, W - M, 44);
       doc.line(M, H - 44, W - M, H - 44);
@@ -179,25 +203,50 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     drawPaper();
     drawChrome();
 
+    // Avatar (top-right circle)
+    const avSize = 96;
+    const avX = W - M - avSize;
+    const avY = 76;
+    if (avatarData) {
+      // soft ring
+      setFill(SOFT); doc.circle(avX + avSize / 2, avY + avSize / 2, avSize / 2 + 4, "F");
+      doc.addImage(avatarData, "PNG", avX, avY, avSize, avSize);
+      setDraw(INK); doc.setLineWidth(1);
+      doc.circle(avX + avSize / 2, avY + avSize / 2, avSize / 2, "S");
+    }
+
     // Eyebrow
     setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
     doc.text("— A GITWORTH APPRAISAL", M, 96);
 
-    // Huge editorial title (serif via 'times')
-    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(64);
-    doc.text("Developer", M, 158);
-    doc.text("Valuation.", M, 218);
+    // Display name (huge serif)
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(54);
+    const displayName = user.name ?? user.login;
+    const nameLines = doc.splitTextToSize(displayName, W - M * 2 - avSize - 30);
+    doc.text(nameLines, M, 150);
+    let coverY = 150 + nameLines.length * 50;
+
+    // Handle + profile link
+    setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(12);
+    doc.text(`@${user.login}`, M, coverY);
+    setInk(ACCENT2); doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+    const link = user.html_url;
+    doc.textWithLink(link, M, coverY + 16, { url: link });
+    // underline link
+    const linkW = doc.getTextWidth(link);
+    setDraw(ACCENT2); doc.setLineWidth(0.5);
+    doc.line(M, coverY + 18, M + linkW, coverY + 18);
+    coverY += 36;
 
     // Subhead
     doc.setFont("helvetica", "normal"); doc.setFontSize(11); setInk(SUB);
-    const subhead = `An estimated market value for ${user.name ?? user.login}'s public GitHub presence, derived from followers, stars, repositories, and tenure.`;
+    const subhead = `An estimated market value for ${displayName}'s public GitHub presence, derived from followers, stars, repositories, and tenure.`;
     const subLines = doc.splitTextToSize(subhead, W - M * 2 - 40);
-    doc.text(subLines, M, 246);
+    doc.text(subLines, M, coverY);
 
     // Big number block
-    let y = 320;
+    let y = 360;
     setFill(INK); doc.rect(M, y, W - M * 2, 180, "F");
-    // accent stripe
     setFill(ACCENT); doc.rect(M, y, 6, 180, "F");
 
     doc.setTextColor(220, 215, 205);
@@ -214,18 +263,16 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     doc.setTextColor(220, 215, 205);
     doc.text(`Tier ${st.tier.toUpperCase()}   ·   ${r.percentile.toUpperCase()}   ·   GLOBAL RANK ~${r.globalRank.toLocaleString()}`, M + 28, y + 158);
 
-    y += 180 + 36;
+    y += 180 + 28;
 
-    // Identity row
-    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(22);
-    doc.text(`${user.name ?? user.login}`, M, y);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(11); setInk(SUB);
-    doc.text(`@${user.login}  ·  joined ${new Date(user.created_at).getFullYear()}  ·  ${user.public_repos} public repos`, M, y + 18);
+    // Bio
     if (user.bio) {
       doc.setFont("times", "italic"); doc.setFontSize(12); setInk(INK);
       const lines = doc.splitTextToSize(`"${user.bio}"`, W - M * 2);
-      doc.text(lines, M, y + 42);
+      doc.text(lines, M, y);
     }
+
+
 
     // ===== PAGE 2: BREAKDOWN =====
     doc.addPage(); pageNum++; drawPaper(); drawChrome();
@@ -238,8 +285,19 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     doc.text("How the value is built.", M, y + 32);
     y += 56;
     doc.setFont("helvetica", "normal"); doc.setFontSize(10); setInk(SUB);
-    doc.text("Each signal is weighted and converted to dollars. Bars below show relative contribution.", M, y);
-    y += 28;
+    doc.text("Each signal is weighted and converted to dollars. Bar length shows % of total value.", M, y);
+    y += 20;
+
+    // Legend
+    const legendY = y;
+    setFill(ACCENT); doc.rect(M, legendY, 10, 10, "F");
+    setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(8.5);
+    doc.text("DOLLAR CONTRIBUTION", M + 16, legendY + 8);
+    setFill(SOFT); doc.rect(M + 170, legendY, 10, 10, "F");
+    setDraw(RULE); doc.rect(M + 170, legendY, 10, 10, "S");
+    setInk(SUB);
+    doc.text("REMAINING (relative to top metric)", M + 186, legendY + 8);
+    y += 26;
 
     // Contribution bars
     const parts: { label: string; value: number; raw: string; weight: string }[] = [
@@ -250,32 +308,49 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
       { label: "Account age",    value: val.parts.ageYears,     raw: `${agg.ageYears.toFixed(1)} yr`,  weight: `× ${weights.ageYears}` },
       { label: "Following",      value: val.parts.following,    raw: user.following.toLocaleString(),  weight: `× ${weights.following}` },
       { label: "Gists",          value: val.parts.gists,        raw: user.public_gists.toLocaleString(),weight: `× ${weights.gists}` },
-    ];
+    ].sort((a, b) => b.value - a.value);
     const maxVal = Math.max(1, ...parts.map(p => p.value));
-    const barAreaW = W - M * 2;
+    const totalVal = Math.max(1, parts.reduce((s, p) => s + p.value, 0));
     const labelW = 130;
-    const valW = 90;
-    const barW = barAreaW - labelW - valW - 20;
+    const valW = 110;
+    const barW = W - M * 2 - labelW - valW;
 
     parts.forEach((p) => {
-      y = ensure(38, y);
-      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10);
-      doc.text(p.label, M, y);
-      doc.setFont("helvetica", "normal"); setInk(SUB); doc.setFontSize(9);
-      doc.text(`${p.raw}  ${p.weight}`, M, y + 13);
+      y = ensure(40, y);
+      // label + raw
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(10.5);
+      doc.text(p.label, M, y + 2);
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(8.5);
+      doc.text(`${p.raw} ${p.weight}`, M, y + 15);
 
-      // bar track
+      // bar track (high-contrast: dark outline)
       const bx = M + labelW;
       const by = y - 6;
-      setFill(SOFT); doc.rect(bx, by, barW, 10, "F");
-      const w = Math.max(1, (p.value / maxVal) * barW);
-      setFill(ACCENT); doc.rect(bx, by, w, 10, "F");
+      const bh = 14;
+      setFill(SOFT); doc.rect(bx, by, barW, bh, "F");
+      const w = Math.max(0.5, (p.value / maxVal) * barW);
+      setFill(ACCENT); doc.rect(bx, by, w, bh, "F");
+      // outline for contrast in both modes
+      setDraw(INK); doc.setLineWidth(0.4);
+      doc.rect(bx, by, barW, bh, "S");
 
-      // value
+      // percentage label inside/after bar
+      const pct = ((p.value / totalVal) * 100).toFixed(0);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8);
+      if (w > 30) {
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${pct}%`, bx + 6, by + 10);
+      } else {
+        setInk(INK);
+        doc.text(`${pct}%`, bx + w + 4, by + 10);
+      }
+
+      // dollar value
       setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(14);
-      doc.text(`$${Math.round(p.value).toLocaleString()}`, W - M, y + 4, { align: "right" });
-      y += 30;
+      doc.text(`$${Math.round(p.value).toLocaleString()}`, W - M, y + 6, { align: "right" });
+      y += 32;
     });
+
 
     // Total
     y = ensure(50, y);
@@ -350,31 +425,82 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
       doc.text("Growth over time.", M, y + 32);
       y += 70;
 
-      // Sparkline chart for stars
-      const chartH = 160;
-      const chartW = W - M * 2;
-      const maxStars = Math.max(1, ...growth.map(g => g.stars));
-      setFill(SOFT); doc.rect(M, y, chartW, chartH, "F");
-      // baseline
-      setDraw(RULE); doc.setLineWidth(0.5); doc.line(M, y + chartH, W - M, y + chartH);
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+      doc.text("Cumulative stars and original repositories by year.", M, y);
+      y += 14;
 
-      const step = growth.length > 1 ? chartW / (growth.length - 1) : 0;
-      // area
-      setFill(ACCENT);
-      // draw bars
-      const bw = Math.min(28, step * 0.6);
+      // Legend
+      setFill(ACCENT); doc.rect(M, y, 10, 10, "F");
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(8.5);
+      doc.text("CUMULATIVE STARS", M + 16, y + 8);
+      setFill(ACCENT2); doc.rect(M + 140, y, 10, 10, "F");
+      doc.text("CUMULATIVE REPOS", M + 156, y + 8);
+      y += 22;
+
+      // Chart area
+      const chartH = 180;
+      const chartLeft = M + 44; // room for y-axis labels
+      const chartRight = W - M;
+      const chartW = chartRight - chartLeft;
+      const chartTop = y;
+      const chartBottom = y + chartH;
+      const maxStars = Math.max(1, ...growth.map(g => g.stars));
+      const maxRepos = Math.max(1, ...growth.map(g => g.repos));
+
+      // Plot background
+      setFill(SOFT); doc.rect(chartLeft, chartTop, chartW, chartH, "F");
+
+      // Horizontal gridlines + y-axis labels (left = stars, right = repos)
+      const ticks = 4;
+      setDraw(RULE); doc.setLineWidth(0.5);
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+      for (let i = 0; i <= ticks; i++) {
+        const gy = chartTop + (chartH / ticks) * i;
+        doc.line(chartLeft, gy, chartRight, gy);
+        const starVal = Math.round(maxStars * (1 - i / ticks));
+        const repoVal = Math.round(maxRepos * (1 - i / ticks));
+        doc.text(starVal.toLocaleString(), chartLeft - 4, gy + 2.5, { align: "right" });
+        doc.text(repoVal.toLocaleString(), chartRight + 4, gy + 2.5);
+      }
+      // Axis title
+      setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(7);
+      doc.text("STARS", chartLeft - 4, chartTop - 6, { align: "right" });
+      setInk(ACCENT2);
+      doc.text("REPOS", chartRight + 4, chartTop - 6);
+
+      // Grouped bars per year
+      const n = growth.length;
+      const slot = chartW / Math.max(1, n);
+      const bw = Math.min(22, slot * 0.35);
       growth.forEach((g, i) => {
-        const h = (g.stars / maxStars) * (chartH - 30);
-        const x = M + i * step - bw / 2 + (growth.length === 1 ? chartW / 2 : 0);
-        doc.rect(x, y + chartH - h, bw, h, "F");
+        const cx = chartLeft + slot * (i + 0.5);
+        const hS = (g.stars / maxStars) * (chartH - 10);
+        const hR = (g.repos / maxRepos) * (chartH - 10);
+        // stars bar (left of center)
+        setFill(ACCENT); doc.rect(cx - bw - 1, chartBottom - hS, bw, hS, "F");
+        setDraw(INK); doc.setLineWidth(0.3);
+        doc.rect(cx - bw - 1, chartBottom - hS, bw, hS, "S");
+        // repos bar (right of center)
+        setFill(ACCENT2); doc.rect(cx + 1, chartBottom - hR, bw, hR, "F");
+        doc.rect(cx + 1, chartBottom - hR, bw, hR, "S");
       });
-      // year labels
-      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+
+      // X-axis baseline
+      setDraw(INK); doc.setLineWidth(0.8);
+      doc.line(chartLeft, chartBottom, chartRight, chartBottom);
+
+      // Year labels
+      setInk(INK); doc.setFont("helvetica", "bold"); doc.setFontSize(8);
       growth.forEach((g, i) => {
-        const x = M + i * step + (growth.length === 1 ? chartW / 2 : 0);
-        doc.text(String(g.year), x, y + chartH + 14, { align: "center" });
+        const cx = chartLeft + slot * (i + 0.5);
+        doc.text(String(g.year), cx, chartBottom + 14, { align: "center" });
       });
-      y += chartH + 32;
+      // X-axis title
+      setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+      doc.text("YEAR", chartLeft + chartW / 2, chartBottom + 28, { align: "center" });
+
+      y = chartBottom + 44;
+
 
       // Table
       const g1 = M, g2 = M + 80, g3 = M + 220, g4 = W - M;
