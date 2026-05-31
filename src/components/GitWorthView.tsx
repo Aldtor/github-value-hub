@@ -131,7 +131,30 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     catch { window.prompt("Copy link:", url); }
   }
 
-  function exportPDF() {
+  async function loadAvatar(url: string, size = 256): Promise<string | null> {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const bmp = await createImageBitmap(blob);
+      const canvas = document.createElement("canvas");
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      // circular clip
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(bmp, 0, 0, size, size);
+      ctx.restore();
+      return canvas.toDataURL("image/png");
+    } catch {
+      return null;
+    }
+  }
+
+  async function exportPDF() {
     if (!user || !agg || !val) return;
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const W = doc.internal.pageSize.getWidth();
@@ -143,7 +166,8 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     const SUB: [number, number, number] = [120, 118, 115];
     const RULE: [number, number, number] = [228, 224, 217];
     const PAPER: [number, number, number] = [250, 247, 241];
-    const ACCENT: [number, number, number] = [201, 90, 56]; // burnt sienna
+    const ACCENT: [number, number, number] = [201, 90, 56];   // burnt sienna (primary)
+    const ACCENT2: [number, number, number] = [42, 76, 110];  // deep navy (secondary)
     const SOFT: [number, number, number] = [243, 238, 229];
 
     const setInk = (c: [number, number, number]) => doc.setTextColor(c[0], c[1], c[2]);
@@ -152,13 +176,13 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
 
     const r = rankFn(val.value);
     const st = strengthFn(val.value);
+    const avatarData = await loadAvatar(user.avatar_url);
 
     let pageNum = 1;
     const drawPaper = () => {
       setFill(PAPER); doc.rect(0, 0, W, H, "F");
     };
     const drawChrome = () => {
-      // subtle top + bottom rule, no heavy band
       setDraw(RULE); doc.setLineWidth(0.5);
       doc.line(M, 44, W - M, 44);
       doc.line(M, H - 44, W - M, H - 44);
@@ -179,25 +203,50 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     drawPaper();
     drawChrome();
 
+    // Avatar (top-right circle)
+    const avSize = 96;
+    const avX = W - M - avSize;
+    const avY = 76;
+    if (avatarData) {
+      // soft ring
+      setFill(SOFT); doc.circle(avX + avSize / 2, avY + avSize / 2, avSize / 2 + 4, "F");
+      doc.addImage(avatarData, "PNG", avX, avY, avSize, avSize);
+      setDraw(INK); doc.setLineWidth(1);
+      doc.circle(avX + avSize / 2, avY + avSize / 2, avSize / 2, "S");
+    }
+
     // Eyebrow
     setInk(ACCENT); doc.setFont("helvetica", "bold"); doc.setFontSize(9);
     doc.text("— A GITWORTH APPRAISAL", M, 96);
 
-    // Huge editorial title (serif via 'times')
-    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(64);
-    doc.text("Developer", M, 158);
-    doc.text("Valuation.", M, 218);
+    // Display name (huge serif)
+    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(54);
+    const displayName = user.name ?? user.login;
+    const nameLines = doc.splitTextToSize(displayName, W - M * 2 - avSize - 30);
+    doc.text(nameLines, M, 150);
+    let coverY = 150 + nameLines.length * 50;
+
+    // Handle + profile link
+    setInk(SUB); doc.setFont("helvetica", "normal"); doc.setFontSize(12);
+    doc.text(`@${user.login}`, M, coverY);
+    setInk(ACCENT2); doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+    const link = user.html_url;
+    doc.textWithLink(link, M, coverY + 16, { url: link });
+    // underline link
+    const linkW = doc.getTextWidth(link);
+    setDraw(ACCENT2); doc.setLineWidth(0.5);
+    doc.line(M, coverY + 18, M + linkW, coverY + 18);
+    coverY += 36;
 
     // Subhead
     doc.setFont("helvetica", "normal"); doc.setFontSize(11); setInk(SUB);
-    const subhead = `An estimated market value for ${user.name ?? user.login}'s public GitHub presence, derived from followers, stars, repositories, and tenure.`;
+    const subhead = `An estimated market value for ${displayName}'s public GitHub presence, derived from followers, stars, repositories, and tenure.`;
     const subLines = doc.splitTextToSize(subhead, W - M * 2 - 40);
-    doc.text(subLines, M, 246);
+    doc.text(subLines, M, coverY);
 
     // Big number block
-    let y = 320;
+    let y = 360;
     setFill(INK); doc.rect(M, y, W - M * 2, 180, "F");
-    // accent stripe
     setFill(ACCENT); doc.rect(M, y, 6, 180, "F");
 
     doc.setTextColor(220, 215, 205);
@@ -214,18 +263,16 @@ export function GitWorthView({ initialUsername = "", autoFetch = false, showSear
     doc.setTextColor(220, 215, 205);
     doc.text(`Tier ${st.tier.toUpperCase()}   ·   ${r.percentile.toUpperCase()}   ·   GLOBAL RANK ~${r.globalRank.toLocaleString()}`, M + 28, y + 158);
 
-    y += 180 + 36;
+    y += 180 + 28;
 
-    // Identity row
-    setInk(INK); doc.setFont("times", "bold"); doc.setFontSize(22);
-    doc.text(`${user.name ?? user.login}`, M, y);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(11); setInk(SUB);
-    doc.text(`@${user.login}  ·  joined ${new Date(user.created_at).getFullYear()}  ·  ${user.public_repos} public repos`, M, y + 18);
+    // Bio
     if (user.bio) {
       doc.setFont("times", "italic"); doc.setFontSize(12); setInk(INK);
       const lines = doc.splitTextToSize(`"${user.bio}"`, W - M * 2);
-      doc.text(lines, M, y + 42);
+      doc.text(lines, M, y);
     }
+
+
 
     // ===== PAGE 2: BREAKDOWN =====
     doc.addPage(); pageNum++; drawPaper(); drawChrome();
