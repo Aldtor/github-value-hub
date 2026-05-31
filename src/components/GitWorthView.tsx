@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import jsPDF from "jspdf";
 import { fetchProfile } from "@/lib/github";
+import { rank as rankFn, strength as strengthFn, achievements as achievementsFn } from "@/lib/gitworth";
 
 export type GhUser = {
   login: string; name: string | null; avatar_url: string; html_url: string;
