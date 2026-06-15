@@ -2,7 +2,7 @@
 
 A modern full-stack application built with **TanStack Start** to provide insights and value analysis for GitHub repositories and developers.
 
-**[🚀 Live Demo](https://github-value-hub.vercel.app)**
+**[🚀 Live Demo](https://gittworth.vercel.app/)**
 
 ---
 
