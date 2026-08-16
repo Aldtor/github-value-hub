@@ -9,11 +9,11 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Free GitHub profile appraisal. Get your GitWorth score from followers, stars, repos and contributions, compare with other devs, and embed a shareable badge." },
       { property: "og:title", content: "GitWorth — Discover your GitHub value" },
       { property: "og:description", content: "Score, rank, compare, and share your GitHub profile." },
-      { property: "og:url", content: "https://git-worth-whiz.lovable.app/" },
-      { property: "og:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
-      { name: "twitter:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
+      { property: "og:url", content: "https://gittworth.vercel.app/" },
+      { property: "og:image", content: "https://gittworth.vercel.app/og-default.jpg" },
+      { name: "twitter:image", content: "https://gittworth.vercel.app/og-default.jpg" },
     ],
-    links: [{ rel: "canonical", href: "https://git-worth-whiz.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://gittworth.vercel.app/" }],
     scripts: [
       {
         type: "application/ld+json",

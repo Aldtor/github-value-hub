@@ -4,9 +4,6 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
-  // Force-on Nitro with Vercel's Build Output API layout. The Lovable wrapper
-  // supplies default `dist/*` output paths, so the Vercel preset paths must be
-  // explicit or Vercel deploys a static shell and returns 404.
   nitro: {
     preset: "vercel",
     output: {

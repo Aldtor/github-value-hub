@@ -7,10 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +36,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -79,20 +75,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "GitWorth — Discover your GitHub value" },
       { name: "description", content: "GitWorth scores, ranks and compares GitHub developers. Analyze followers, stars, repos and contributions — then share or embed your score." },
-      { name: "author", content: "GitWorth" },
+      { name: "author", content: "Satyam Kumar (Aldtor)" },
       { name: "robots", content: "index, follow" },
       { name: "theme-color", content: "#faf7f1" },
       { property: "og:site_name", content: "GitWorth" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "GitWorth — Discover your GitHub value" },
       { property: "og:description", content: "Score, rank, compare, and share your GitHub profile." },
-      { property: "og:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
+      { property: "og:image", content: "https://gittworth.vercel.app/og-default.jpg" },
       { property: "og:image:width", content: "1280" },
       { property: "og:image:height", content: "672" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "GitWorth — Discover your GitHub value" },
       { name: "twitter:description", content: "Score, rank, compare, and share your GitHub profile." },
-      { name: "twitter:image", content: "https://git-worth-whiz.lovable.app/og-default.jpg" },
+      { name: "twitter:image", content: "https://gittworth.vercel.app/og-default.jpg" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -104,11 +100,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "GitWorth",
-          url: "https://git-worth-whiz.lovable.app",
+          url: "https://gittworth.vercel.app",
           description: "Score, rank and compare GitHub developers.",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://git-worth-whiz.lovable.app/u/{username}",
+            target: "https://gittworth.vercel.app/u/{username}",
             "query-input": "required name=username",
           },
         }),
@@ -120,7 +116,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
 
 function RootShell({ children }: { children: ReactNode }) {
   return (

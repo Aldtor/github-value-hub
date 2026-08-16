@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://git-worth-whiz.lovable.app/sitemap.xml
+Sitemap: https://gittworth.vercel.app/sitemap.xml
