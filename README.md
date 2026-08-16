@@ -1,176 +1,145 @@
-# GitHub Value Hub
+# 📊 GitWorth (github-value-hub)
 
-A modern full-stack application built with **TanStack Start** to provide insights and value analysis for GitHub repositories and developers.
+<div align="center">
 
-**[🚀 Live Demo](https://gittworth.vercel.app/)**
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-gittworth.vercel.app-10B981?style=for-the-badge&logo=vercel&logoColor=white)](https://gittworth.vercel.app/)
+[![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![GitHub API](https://img.shields.io/badge/API-GitHub%20REST-181717?style=for-the-badge&logo=github&logoColor=white)](https://docs.github.com/en/rest)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%20v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
----
+### **Developer Profile Scoring, Head-to-Head Comparisons, Wrapped Graphics & Badge Engine**
 
-## ✨ Features
-
-- 📊 **Repository Analytics** — Deep insights into GitHub repositories
-- 🔍 **Advanced Search** — Find valuable projects and developers
-- 💾 **Data Persistence** — Seamless data storage and management
-- 🎨 **Modern UI** — Beautiful, accessible interface built with Radix UI & Tailwind CSS
-- ⚡ **High Performance** — Optimized with React Query and Vite
-- 📱 **Responsive Design** — Works great on desktop, tablet, and mobile
+*Evaluate real GitHub output beyond simple green contribution squares. Calculate weighted developer scores, compare engineering stats head-to-head, generate dynamic README badges, and render shareable annual GitHub Wrapped posters.*
 
 ---
 
-## 🛠️ Tech Stack
+[Live Application](https://gittworth.vercel.app/) • [Features](#-key-features) • [Scoring Algorithm](#-scoring-engine--metrics) • [Architecture](#-tech-stack--architecture) • [Getting Started](#-getting-started)
 
-- **Frontend Framework**: [TanStack Start](https://tanstack.com/start) + React 19
-- **State Management**: [TanStack React Query](https://tanstack.com/query)
-- **Routing**: [TanStack React Router](https://tanstack.com/router)
-- **UI Components**: [Radix UI](https://www.radix-ui.com/) primitives
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) + [Lucide Icons](https://lucide.dev/)
-- **Forms**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) validation
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Language**: TypeScript
-
-### Additional Libraries
-
-- 📅 **date-fns** — Date utilities
-- 📊 **Recharts** — Data visualization
-- 🖼️ **html-to-image** — Screenshot generation
-- 📄 **jsPDF** — PDF export
-- 🎯 **cmdk** — Command palette UI
-- 🪟 **react-resizable-panels** — Resizable layouts
-- 🎪 **embla-carousel** — Carousel component
+</div>
 
 ---
 
-## 📋 Project Structure
+## 📌 Overview
+
+GitHub profile commit heatmaps are easily skewed by trivial automated commits, bots, and empty repositories. **GitWorth** provides a holistic, multi-dimensional appraisal of a developer's real engineering impact.
+
+By interfacing with the **GitHub REST API**, GitWorth evaluates repository complexity, stars, original code contributions, language breadth, pull requests, and commit velocity to compute a verifiable **GitWorth Score**, percentile tier, embeddable badges, and year-in-review summaries.
+
+---
+
+## ✨ Key Features
+
+- 🏆 **GitWorth Score Engine:** Multi-factor algorithmic scoring that weights stars, forks, original non-forked repos, language diversity, and contribution consistency.
+- ⚔️ **Head-to-Head Comparison (`/compare/:user1/:user2`):** Stat-by-stat engineering matchup comparing two developers side-by-side.
+- 🥇 **Developer Leaderboard (`/leaderboard`):** Global community rankings categorized by score tiers (Grandmaster, Master, Diamond, Emerald).
+- 🏷️ **Embeddable Profile Badges (`/badges/:username`):** Dynamic SVG and PNG score badges for personal portfolio sites and GitHub profile READMEs.
+- 🎁 **GitHub Wrapped Posters (`/wrapped/:username`):** Visually stunning, shareable summary cards rendered client-side using `html-to-image`.
+- 📁 **Instant Portfolio View (`/portfolio/:username`):** Automatically converts public GitHub repository history into a clean showcase page.
+- ⚡ **Rate-Limit Resilient Architecture:** Optimized caching layers and debounced API consumers for unauthenticated and authenticated queries.
+
+---
+
+## 🧮 Scoring Engine & Metrics
 
 ```
-src/
-├── routes/          # File-based routing (TanStack Start)
-├── components/      # Reusable React components
-├── lib/             # Utilities and helpers
-├── styles/          # Global CSS
-└── api/             # Server-side endpoints (optional)
+GitWorth Weighted Score Calculation
+├── Repository Impact (35%)
+│   ├── Original Non-Forked Repos
+│   ├── Stargazer Count & Star-to-Repo Ratio
+│   └── Fork Count & Ecosystem Reuse
+├── Code Velocity & Consistency (30%)
+│   ├── Public Commit Volume & Frequency
+│   └── Contribution Longevity & Active Weeks
+├── Technical Breadth (20%)
+│   ├── Multi-Language Diversity Index
+│   └── Framework & Tooling Spectrum
+└── Community & Collaboration (15%)
+    ├── Pull Requests Opened & Merged
+    └── Issues Resolved & Discussions
 ```
 
-### Routing Convention
+---
 
-Uses **file-based routing**. Key conventions:
-- `index.tsx` → `/`
-- `about.tsx` → `/about`
-- `users/$id.tsx` → `/users/:id` (dynamic)
-- `__root.tsx` → App shell (wraps all routes)
+## 🛠️ Tech Stack & Architecture
 
-See `src/routes/README.md` for full routing documentation.
+- **Full-Stack Framework:** TanStack Start (`@tanstack/react-start`) + TanStack Router
+- **UI & State:** React 19.2 + TypeScript + TanStack Query (`@tanstack/react-query`)
+- **Styling:** Tailwind CSS v4 + Radix UI Primitives (`@radix-ui/react-*`) + Lucide React
+- **Graphics & Export:** `html-to-image` for high-res social cards + `jspdf` for report generation
+- **API:** GitHub REST API v3
+
+---
+
+## 📁 Project Structure
+
+```
+github-value-hub/
+├── src/
+│   ├── routes/
+│   │   ├── __root.tsx                    # Root layout & global navigation
+│   │   ├── index.tsx                     # Landing page & username score lookup
+│   │   ├── compare.tsx                   # Head-to-head comparison search
+│   │   ├── compare_.$user1.$user2.tsx    # Live comparison view
+│   │   ├── leaderboard.tsx               # Top developer rankings
+│   │   ├── badges.$username.tsx          # Dynamic SVG badge generator
+│   │   ├── wrapped.$username.tsx         # Annual GitHub Wrapped generator
+│   │   └── portfolio.$username.tsx       # Auto-generated portfolio showcase
+│   ├── components/                       # Radar charts, score bars, stat cards, UI
+│   ├── lib/                              # GitHub API clients, scoring formulas, caching
+│   └── ...
+├── public/
+├── package.json
+└── vite.config.ts
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- Node.js 18+
-- npm or yarn
+- Node.js 18+ or Bun
+- (Optional) GitHub Personal Access Token (`GITHUB_TOKEN`) to increase rate limits
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/Aldtor/github-value-hub.git
-cd github-value-hub
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Aldtor/github-value-hub.git
+   cd github-value-hub
+   ```
 
-# Install dependencies
-npm install
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
 
-# Start development server
-npm run dev
-```
+3. **Start development server:**
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
 
-The app will be available at `http://localhost:5173`
-
-### Building for Production
-
-```bash
-# Build the project
-npm run build
-
-# Preview the production build
-npm run preview
-```
-
----
-
-## 📝 Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Vite dev server with hot reload |
-| `npm run build` | Build for production with Vercel output verification |
-| `npm run build:dev` | Build in development mode for debugging |
-| `npm run preview` | Preview production build locally |
-| `npm run lint` | Run ESLint for code quality |
-| `npm run format` | Format code with Prettier |
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
 
 ---
 
-## 🎯 Key Features to Explore
+## 👤 Author
 
-### 1. Modern Data Fetching
-Leverages **TanStack React Query** for robust data management, caching, and synchronization.
-
-### 2. Type-Safe Forms
-Fully typed forms with **React Hook Form** and **Zod** schema validation.
-
-### 3. Accessible Components
-All UI components built on **Radix UI** primitives ensure WCAG compliance and keyboard navigation.
-
-### 4. Responsive Layouts
-**Tailwind CSS** provides utility-first styling with built-in responsive design utilities.
+**Satyam Kumar (Aldtor)**
+- 🌐 Portfolio: [aldtor.vercel.app](https://aldtor.vercel.app)
+- 🐙 GitHub: [@Aldtor](https://github.com/Aldtor)
+- 💼 LinkedIn: [linkedin.com/in/aldtor](https://in.linkedin.com/in/aldtor)
 
 ---
 
-## 🌐 Deployment
-
-This project is optimized for **Vercel** deployment:
-
-```bash
-npm run build  # Includes Vercel output verification
-```
-
-### Environment Variables
-
-Add any required environment variables to `.env.local`:
-
-```env
-# Example
-VITE_API_URL=https://api.example.com
-```
-
----
-
-## 📖 Documentation
-
-- [TanStack Start Docs](https://tanstack.com/start/latest)
-- [React Router Docs](https://tanstack.com/router/latest)
-- [Radix UI Components](https://www.radix-ui.com/)
-- [Tailwind CSS Utilities](https://tailwindcss.com/docs)
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to open issues or submit pull requests.
-
----
-
-## 📄 License
-
-This project is currently unlicensed. See the LICENSE file for details.
-
----
-
-## 👨‍💻 Author
-
-Created by [@Aldtor](https://github.com/Aldtor)
-
----
-
-**Made with ❤️ for the GitHub community**
+<div align="center">
+  <sub>Built with ❤️ for developers who build, ship, and contribute to open source.</sub>
+</div>
